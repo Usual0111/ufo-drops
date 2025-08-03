@@ -1045,3 +1045,8 @@ body {
     background: #dc3545;
     transform: scale(1.1);
 }
+
+/* Registration Modal styles are based on existing modal styles */
+#registration-modal .modal-content {
+    border-color: #ff00ff; /* Optional: different color for registration */
+}
