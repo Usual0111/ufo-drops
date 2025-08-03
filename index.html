@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UFO Drops - Earn Free Crypto</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Background stars -->
+    <div class="stars"></div>
+    <div class="twinkling"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="ufo-icon">🛸</span>
+                <span class="logo-text">UFO Drops</span>
+            </div>
+            <div class="nav-menu" id="nav-menu">
+                <a href="#home" class="nav-link active" data-section="home">
+                    <span class="nav-icon">🚀</span>
+                    <span>Drops</span>
+                </a>
+                <a href="#missions" class="nav-link" data-section="missions">
+                    <span class="nav-icon">📁</span>
+                    <span>My Missions</span>
+                </a>
+                <a href="#learn" class="nav-link" data-section="learn">
+                    <span class="nav-icon">🎓</span>
+                    <span>Learn</span>
+                </a>
+                <a href="#profile" class="nav-link" data-section="profile">
+                    <span class="nav-icon">👾</span>
+                    <span>Profile</span>
+                </a>
+            </div>
+            <div class="nav-toggle" id="nav-toggle">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-container">
+        
+        <!-- Home Section -->
+        <section id="home" class="section active">
+            <div class="hero-section">
+                <div class="hero-content">
+                    <h1 class="hero-title">
+                        💸 Earn Free Crypto<br>
+                        <span class="gradient-text">from UFO Drops</span>
+                    </h1>
+                    <p class="hero-subtitle">
+                        Claim tokens from alien missions. No money. No KYC. Just click & earn.
+                    </p>
+                    <button class="cta-button" id="start-mission">
+                        <span class="button-icon">👽</span>
+                        Start Mission
+                    </button>
+                </div>
+                
+                <div class="benefits">
+                    <div class="benefit-item">
+                        <span class="benefit-icon">👨‍🚀</span>
+                        <span class="benefit-text">Simple for Beginners</span>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-icon">🪐</span>
+                        <span class="benefit-text">No Investment</span>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-icon">📦</span>
+                        <span class="benefit-text">Future Tokens</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Projects Catalog -->
+            <div class="catalog-section">
+                <div class="section-header">
+                    <h2>🚀 Available Drops</h2>
+                    <div class="filters">
+                        <button class="filter-btn active" data-filter="all">All</button>
+                        <button class="filter-btn" data-filter="depin">DePIN</button>
+                        <button class="filter-btn" data-filter="social">SocialFi</button>
+                        <button class="filter-btn" data-filter="gamefi">GameFi</button>
+                        <button class="filter-btn" data-filter="testnet">Testnet</button>
+                    </div>
+                </div>
+                
+                <div class="projects-grid" id="projects-grid">
+                    <!-- Projects will be populated by JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <!-- My Missions Section -->
+        <section id="missions" class="section">
+            <div class="section-header">
+                <h2>📁 My Missions</h2>
+                <div class="stats">
+                    <span class="stat-item">Active: <span id="active-count">0</span></span>
+                    <span class="stat-item">Completed: <span id="completed-count">0</span></span>
+                </div>
+            </div>
+            
+            <div class="missions-container" id="missions-container">
+                <div class="empty-state">
+                    <span class="empty-icon">🛸</span>
+                    <h3>No missions yet</h3>
+                    <p>Start exploring drops to begin your crypto journey!</p>
+                    <button class="secondary-button" onclick="showSection('home')">Explore Drops</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Learn Section -->
+        <section id="learn" class="section">
+            <div class="section-header">
+                <h2>🎓 Learn</h2>
+                <p>Master the art of crypto airdrops</p>
+            </div>
+            
+            <div class="learn-grid">
+                <div class="learn-card">
+                    <div class="learn-icon">🎁</div>
+                    <h3>What is an Airdrop?</h3>
+                    <p>Learn how projects distribute free tokens to early users and supporters.</p>
+                    <button class="learn-button">Read More</button>
+                </div>
+                
+                <div class="learn-card">
+                    <div class="learn-icon">💰</div>
+                    <h3>Why Projects Pay?</h3>
+                    <p>Understand the economics behind free token distribution.</p>
+                    <button class="learn-button">Read More</button>
+                </div>
+                
+                <div class="learn-card">
+                    <div class="learn-icon">🦊</div>
+                    <h3>Setup MetaMask</h3>
+                    <p>Step-by-step guide to create and secure your crypto wallet.</p>
+                    <button class="learn-button">Read More</button>
+                </div>
+                
+                <div class="learn-card">
+                    <div class="learn-icon">✅</div>
+                    <h3>Complete Missions</h3>
+                    <p>Best practices for maximizing your airdrop rewards.</p>
+                    <button class="learn-button">Read More</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Profile Section -->
+        <section id="profile" class="section">
+            <div class="profile-header">
+                <div class="profile-avatar">👽</div>
+                <div class="profile-info">
+                    <h2 id="user-name">Alien Explorer</h2>
+                    <div class="level-badge">
+                        <span class="level-icon">🌟</span>
+                        <span id="user-level">Level 1 - Newbie</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="profile-stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="total-projects">0</div>
+                    <div class="stat-label">Total Projects</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="completed-projects">0</div>
+                    <div class="stat-label">Completed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="potential-rewards">$0</div>
+                    <div class="stat-label">Potential Rewards</div>
+                </div>
+            </div>
+            
+            <div class="achievements">
+                <h3>🏆 Achievements</h3>
+                <div class="badges-grid" id="badges-grid">
+                    <!-- Badges will be populated by JavaScript -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Project Modal -->
+    <div class="modal" id="project-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Project Name</h3>
+                <button class="close-btn" id="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="project-info">
+                    <div class="project-logo" id="modal-logo">🚀</div>
+                    <div class="project-details">
+                        <p id="modal-description">Project description...</p>
+                        <div class="project-tags" id="modal-tags"></div>
+                        <div class="potential-reward">
+                            <span class="reward-label">Potential Reward:</span>
+                            <span class="reward-value" id="modal-reward">TBD</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mission-checklist">
+                    <h4>📋 Mission Steps:</h4>
+                    <div class="checklist" id="modal-checklist">
+                        <!-- Steps will be populated by JavaScript -->
+                    </div>
+                </div>
+                
+                <div class="modal-actions">
+                    <button class="primary-button" id="join-mission">
+                        <span class="button-icon">🚀</span>
+                        Join Mission
+                    </button>
+                    <button class="secondary-button" id="visit-project">
+                        <span class="button-icon">🔗</span>
+                        Visit Project
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification">
+        <span class="notification-icon">✅</span>
+        <span class="notification-text" id="notification-text">Success message</span>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
