@@ -352,10 +352,6 @@ function getStatusText(status) {
 
 // Modal functionality
 function openProjectModal(projectId) {
-  if (!currentUser.isRegistered) {
-    showRegistrationModal();
-    return;
-}
     const project = projects.find(p => p.id === projectId);
     if (!project) return;
     
@@ -435,11 +431,16 @@ modal.addEventListener('click', function(e) {
 
 // Join mission
 function joinMission(projectId) {
+    // Проверяем регистрацию только при фактическом присоединении
+    if (!currentUser.isRegistered) {
+        showRegistrationModal();
+        return;
+    }
+    
     if (currentUser.joinedProjects.includes(projectId)) {
         showNotification('Already joined this mission!', 'warning');
         return;
     }
-    
     currentUser.joinedProjects.push(projectId);
     saveUserData();
     updateStats();
@@ -447,7 +448,6 @@ function joinMission(projectId) {
     renderMissions();
     renderProjects();
     modal.classList.remove('active');
-    
     const project = projects.find(p => p.id === projectId);
     showNotification(`Successfully joined ${project.name}!`, 'success');
 }
