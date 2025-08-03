@@ -2,9 +2,10 @@
 let currentUser = {
     name: 'Alien Explorer',
     level: 1,
-    joinedProjects: [],
-    completedProjects: [],
-    badges: []
+isRegistered: false, // Добавить новое свойство
+joinedProjects: [],
+completedProjects: [],
+badges: []
 };
 
 let projects = [
@@ -17,6 +18,8 @@ let projects = [
         tags: ['DePIN', 'Free', 'Mobile', 'No KYC'],
         description: 'Decentralized infrastructure network. Earn tokens by sharing your internet connection.',
         potentialReward: '$50-100',
+      rewardPool: '70,000 USDT',
+endDate: '2025-09-30',
         website: 'https://bless.network',
         steps: [
             'Register on the platform',
@@ -35,6 +38,8 @@ let projects = [
         tags: ['DePIN', 'Passive', 'Chrome Extension'],
         description: 'Monetize your unused internet bandwidth with NodePay extension.',
         potentialReward: '$30-80',
+      rewardPool: '70,000 USDT',
+endDate: '2025-09-30',
         website: 'https://nodepay.ai',
         steps: [
             'Install Chrome extension',
@@ -53,6 +58,8 @@ let projects = [
         tags: ['DePIN', 'Drive-to-Earn', 'AI'],
         description: 'Contribute to decentralized mapping by driving with dashcam.',
         potentialReward: '$100-300',
+      rewardPool: '70,000 USDT',
+endDate: '2025-09-30',
         website: 'https://hivemapper.com',
         steps: [
             'Download Hivemapper app',
@@ -71,6 +78,8 @@ let projects = [
         tags: ['DePIN', 'Bandwidth', 'Passive'],
         description: 'Sell your unused internet bandwidth to AI companies.',
         potentialReward: '$40-120',
+      rewardPool: '70,000 USDT',
+endDate: '2025-09-30',
         website: 'https://getgrass.io',
         steps: [
             'Sign up with email',
@@ -89,6 +98,8 @@ let projects = [
         tags: ['SocialFi', 'Keys Trading', 'Base'],
         description: 'Social network where you can buy and sell access to people.',
         potentialReward: 'TBD',
+      rewardPool: '70,000 USDT',
+endDate: '2025-09-30',
         website: 'https://friend.tech',
         steps: [
             'Connect Base wallet',
@@ -107,6 +118,8 @@ let projects = [
         tags: ['ZK-Proofs', 'Testnet', 'Cross-chain'],
         description: 'Zero-knowledge proof infrastructure for cross-chain interoperability.',
         potentialReward: '$200-500',
+      rewardPool: '70,000 USDT',
+endDate: '2025-09-30',
         website: 'https://polyhedra.network',
         steps: [
             'Connect MetaMask wallet',
@@ -125,6 +138,8 @@ let projects = [
         tags: ['GameFi', 'Chainlets', 'Gaming'],
         description: 'Launch your own gaming chainlet on Saga Protocol.',
         potentialReward: '$150-400',
+      rewardPool: '70,000 USDT',
+endDate: '2025-09-30',
         website: 'https://sagaprotocol.org',
         steps: [
             'Create Saga account',
@@ -143,6 +158,8 @@ let projects = [
         tags: ['Restaking', 'Ethereum', 'AVS'],
         description: 'Restaking protocol for securing actively validated services.',
         potentialReward: '$300-800',
+      rewardPool: '70,000 USDT',
+endDate: '2025-09-30',
         website: 'https://eigenlayer.xyz',
         steps: [
             'Stake ETH on mainnet',
@@ -248,6 +265,11 @@ navLinks.forEach(link => {
 
 // Section switching
 function showSection(sectionId) {
+  const restrictedSections = ['missions', 'learn', 'profile'];
+if (!currentUser.isRegistered && restrictedSections.includes(sectionId)) {
+    showRegistrationModal();
+    return;
+}
     sections.forEach(section => {
         section.classList.remove('active');
     });
@@ -330,6 +352,10 @@ function getStatusText(status) {
 
 // Modal functionality
 function openProjectModal(projectId) {
+  if (!currentUser.isRegistered) {
+    showRegistrationModal();
+    return;
+}
     const project = projects.find(p => p.id === projectId);
     if (!project) return;
     
@@ -339,6 +365,30 @@ function openProjectModal(projectId) {
     document.getElementById('modal-logo').textContent = project.logo;
     document.getElementById('modal-description').textContent = project.description;
     document.getElementById('modal-reward').textContent = project.potentialReward;
+  
+// Add reward pool and end date
+const detailsContainer = document.querySelector('.project-details');
+
+// Check if elements already exist to prevent duplicates
+if (!detailsContainer.querySelector('.reward-pool-info')) {
+    const rewardPoolEl = document.createElement('div');
+    rewardPoolEl.className = 'potential-reward reward-pool-info';
+    rewardPoolEl.innerHTML = `
+        <span class="reward-label">Reward Pool:</span>
+        <span class="reward-value">${project.rewardPool}</span>
+    `;
+    detailsContainer.appendChild(rewardPoolEl);
+}
+
+if (!detailsContainer.querySelector('.end-date-info')) {
+    const endDateEl = document.createElement('div');
+    endDateEl.className = 'potential-reward end-date-info';
+    endDateEl.innerHTML = `
+        <span class="reward-label">End Date:</span>
+        <span class="reward-value">${formatDate(project.endDate)}</span>
+    `;
+    detailsContainer.appendChild(endDateEl);
+}
     
     // Render tags
     const tagsContainer = document.getElementById('modal-tags');
@@ -423,7 +473,19 @@ function renderMissions() {
         if (!project) return;
         
         const isCompleted = currentUser.completedProjects.includes(projectId);
-        const progress = isCompleted ? 100 : Math.floor(Math.random() * 80) + 10; // Simulate progress
+let progress = 100;
+if (!isCompleted) {
+    const project = projects.find(p => p.id === projectId);
+    if (project && project.endDate) {
+        const endDate = new Date(project.endDate);
+        const today = new Date();
+        const totalTime = endDate - new Date('2024-01-01'); // Assuming project started on 2024-01-01
+        const elapsed = today - new Date('2024-01-01');
+        progress = Math.min(95, Math.max(5, Math.floor((elapsed / totalTime) * 100)));
+    } else {
+        progress = Math.floor(Math.random() * 80) + 10; // fallback
+    }
+}
         
 
       const missionCard = document.createElement('div');
@@ -623,6 +685,10 @@ function loadUserData() {
     const savedUser = localStorage.getItem('ufoDropsUser');
     if (savedUser) {
         currentUser = { ...currentUser, ...JSON.parse(savedUser) };
+      // Ensure isRegistered property exists for older saved data
+if (currentUser.isRegistered === undefined) {
+    currentUser.isRegistered = false;
+}
     }
 }
 
@@ -1008,4 +1074,40 @@ function removeMission(projectId) {
 }
 
 window.showRemoveModal = showRemoveModal;
+// Helper function to format date
+function formatDate(dateString) {
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+}
+window.formatDate = formatDate;
+// Registration Modal Functionality
+function showRegistrationModal() {
+    const regModal = document.createElement('div');
+    regModal.className = 'modal active';
+    regModal.id = 'registration-modal';
+    regModal.innerHTML = `
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h3>🚀 Register to Join Missions</h3>
+                <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 1rem;">Registration is simulated. Click the button below to unlock full features.</p>
+                <button class="primary-button" onclick="registerUser(); this.closest('.modal').remove();">
+                    <span class="button-icon">👽</span> Register (Simulate)
+                </button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(regModal);
+}
+
+function registerUser() {
+    currentUser.isRegistered = true;
+    saveUserData();
+    showNotification('Registration successful! Welcome, Alien Explorer! 🎉', 'success');
+}
+
+window.showRegistrationModal = showRegistrationModal;
+window.registerUser = registerUser;
 window.removeMission = removeMission;
