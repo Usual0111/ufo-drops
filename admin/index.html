@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UFO Drops - Admin Panel</title>
+    <link rel="stylesheet" href="admin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Background stars -->
+    <div class="stars"></div>
+    <div class="twinkling"></div>
+
+    <!-- Login Screen -->
+    <div id="login-screen" class="login-screen">
+        <div class="login-container">
+            <div class="login-header">
+                <span class="ufo-icon">🛸</span>
+                <h1>Admin Access</h1>
+                <p>Enter credentials to manage UFO Drops</p>
+            </div>
+            <form id="login-form" class="login-form">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="login-btn">
+                    <span class="button-icon">🔐</span>
+                    Login
+                </button>
+            </form>
+            <div id="login-error" class="error-message"></div>
+        </div>
+    </div>
+
+    <!-- Main Admin Panel -->
+    <div id="admin-panel" class="admin-panel hidden">
+        <!-- Header -->
+        <header class="admin-header">
+            <div class="header-left">
+                <span class="ufo-icon">🛸</span>
+                <h1>UFO Drops Admin</h1>
+            </div>
+            <div class="header-right">
+                <span id="admin-user">Admin User</span>
+                <button id="logout-btn" class="logout-btn">
+                    <span class="button-icon">🚪</span>
+                    Logout
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <!-- Controls Bar -->
+            <div class="controls-bar">
+                <div class="controls-left">
+                    <button id="add-project-btn" class="primary-btn">
+                        <span class="button-icon">➕</span>
+                        Add Project
+                    </button>
+                    <button id="export-btn" class="secondary-btn">
+                        <span class="button-icon">📥</span>
+                        Export
+                    </button>
+                    <button id="import-btn" class="secondary-btn">
+                        <span class="button-icon">📤</span>
+                        Import
+                    </button>
+                    <input type="file" id="import-file" accept=".json" style="display: none;">
+                </div>
+                <div class="controls-right">
+                    <input type="text" id="search-input" placeholder="🔍 Search projects..." class="search-input">
+                    <select id="category-filter" class="filter-select">
+                        <option value="all">All Categories</option>
+                        <option value="depin">DePIN</option>
+                        <option value="social">SocialFi</option>
+                        <option value="gamefi">GameFi</option>
+                        <option value="testnet">Testnet</option>
+                    </select>
+                    <select id="status-filter" class="filter-select">
+                        <option value="all">All Status</option>
+                        <option value="open">Open</option>
+                        <option value="upcoming">Upcoming</option>
+                        <option value="closed">Closed</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <span class="stat-number" id="total-projects">0</span>
+                    <span class="stat-label">Total Projects</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="active-projects">0</span>
+                    <span class="stat-label">Active</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="upcoming-projects">0</span>
+                    <span class="stat-label">Upcoming</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="closed-projects">0</span>
+                    <span class="stat-label">Closed</span>
+                </div>
+            </div>
+
+            <!-- Projects Table -->
+            <div class="table-container">
+                <table class="projects-table" id="projects-table">
+                    <thead>
+                        <tr>
+                            <th class="sortable" data-sort="name">
+                                Name <span class="sort-icon">↕️</span>
+                            </th>
+                            <th>Logo</th>
+                            <th class="sortable" data-sort="category">
+                                Category <span class="sort-icon">↕️</span>
+                            </th>
+                            <th class="sortable" data-sort="status">
+                                Status <span class="sort-icon">↕️</span>
+                            </th>
+                            <th>Tags</th>
+                            <th class="sortable" data-sort="potentialReward">
+                                Reward <span class="sort-icon">↕️</span>
+                            </th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="projects-tbody">
+                        <!-- Projects will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Empty State -->
+            <div id="empty-state" class="empty-state hidden">
+                <span class="empty-icon">🛸</span>
+                <h3>No projects found</h3>
+                <p>Add your first project to get started</p>
+                <button class="primary-btn" onclick="openAddProjectModal()">
+                    <span class="button-icon">➕</span>
+                    Add Project
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Project Modal -->
+    <div id="project-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Add New Project</h3>
+                <button class="close-btn" id="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="project-form" class="project-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="project-name">Project Name *</label>
+                            <input type="text" id="project-name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="project-logo">Logo (Emoji)</label>
+                            <input type="text" id="project-logo" name="logo" placeholder="🚀" maxlength="2">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="project-category">Category *</label>
+                            <select id="project-category" name="category" required>
+                                <option value="">Select Category</option>
+                                <option value="depin">DePIN</option>
+                                <option value="social">SocialFi</option>
+                                <option value="gamefi">GameFi</option>
+                                <option value="testnet">Testnet</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="project-status">Status *</label>
+                            <select id="project-status" name="status" required>
+                                <option value="">Select Status</option>
+                                <option value="open">Open</option>
+                                <option value="upcoming">Upcoming</option>
+                                <option value="closed">Closed</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="project-tags">Tags (comma separated)</label>
+                        <input type="text" id="project-tags" name="tags" placeholder="DePIN, Free, Mobile">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="project-description">Description *</label>
+                        <textarea id="project-description" name="description" rows="3" required></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="project-reward">Potential Reward</label>
+                            <input type="text" id="project-reward" name="potentialReward" placeholder="$50-100">
+                        </div>
+                        <div class="form-group">
+                            <label for="project-website">Website URL</label>
+                            <input type="url" id="project-website" name="website" placeholder="https://example.com">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="project-steps">Mission Steps (one per line)</label>
+                        <textarea id="project-steps" name="steps" rows="5" placeholder="Register on the platform&#10;Download mobile app&#10;Complete daily check-ins"></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="secondary-btn" id="cancel-btn">Cancel</button>
+                        <button type="submit" class="primary-btn">
+                            <span class="button-icon" id="save-icon">💾</span>
+                            <span id="save-text">Save Project</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirm-modal" class="modal">
+        <div class="modal-content confirm-modal">
+            <div class="modal-header">
+                <h3 id="confirm-title">Confirm Action</h3>
+            </div>
+            <div class="modal-body">
+                <p id="confirm-message">Are you sure you want to perform this action?</p>
+                <div class="form-actions">
+                    <button class="secondary-btn" id="confirm-cancel">Cancel</button>
+                    <button class="danger-btn" id="confirm-ok">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification">
+        <span class="notification-icon" id="notification-icon">✅</span>
+        <span class="notification-text" id="notification-text">Success message</span>
+    </div>
+
+    <!-- Scripts -->
+    <script src="auth.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>
