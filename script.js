@@ -22,7 +22,8 @@ let badges = [
 // DOM Elements
 const navToggle = document.getElementById('nav-toggle');
 const navMenu = document.getElementById('nav-menu');
-const navLinks = document.querySelectorAll('.nav-link');
+// Выбираем ссылки навигации внутри меню, у которых есть атрибут data-section
+const navLinks = document.querySelectorAll('#nav-menu a.nav-link[data-section]');
 const sections = document.querySelectorAll('.section');
 const projectsGrid = document.getElementById('projects-grid');
 const filterBtns = document.querySelectorAll('.filter-btn');
