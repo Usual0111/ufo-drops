@@ -6,6 +6,32 @@
     <title>UFO Drops - Earn Free Crypto</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+
+<!-- Add Firebase Authentication -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+
+<!-- Add Cloud Firestore -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+    <script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCMcR82zwhu8y_n7Un7BFxWsTDIogQKqRo",
+    authDomain: "ufo-drops.firebaseapp.com",
+    projectId: "ufo-drops",
+    storageBucket: "ufo-drops.firebasestorage.app",
+    messagingSenderId: "297472887464",
+    appId: "1:297472887464:web:a221daaaeb4d247024109d"
+  };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+</script>
 </head>
 <body>
     <!-- Background stars -->
