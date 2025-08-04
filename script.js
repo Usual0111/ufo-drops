@@ -1,14 +1,18 @@
 // Global state
 let currentUser = {
-    name: 'Alien Explorer',
+    uid: null, // Firebase UID
+    email: null, // User's email
+    displayName: 'Alien Explorer', // Можно брать из профиля Firebase
     level: 1,
-isRegistered: false, // Добавить новое свойство
-joinedProjects: [],
-completedProjects: [],
-badges: []
+    isRegistered: false, // Это больше не нужно, проверяем через auth
+    joinedProjects: [],
+    completedProjects: [],
+    badges: []
 };
+let projects = []; // Будет заполняться из Firestore
+let badges = []; // Если бейджи тоже будут в Firestore, загружай их аналогично
 
-let projects = [
+//let projects = [
     {
         id: 1,
         name: 'Bless Network',
@@ -171,7 +175,7 @@ endDate: '2025-09-30',
     }
 ];
 
-let badges = [
+//let badges = [
     {
         id: 'first_mission',
         name: 'First Contact',
@@ -677,11 +681,11 @@ function showNotification(message, type = 'success') {
 }
 
 // Local storage functions
-function saveUserData() {
+//function saveUserData() {
     localStorage.setItem('ufoDropsUser', JSON.stringify(currentUser));
 }
 
-function loadUserData() {
+//function loadUserData() {
     const savedUser = localStorage.getItem('ufoDropsUser');
     if (savedUser) {
         currentUser = { ...currentUser, ...JSON.parse(savedUser) };
@@ -1111,3 +1115,444 @@ function registerUser() {
 window.showRegistrationModal = showRegistrationModal;
 window.registerUser = registerUser;
 window.removeMission = removeMission;
+
+// DOM Elements (убедись, что они объявлены)
+// const navToggle = document.getElementById('nav-toggle');
+// const navMenu = document.getElementById('nav-menu');
+// const navLinks = document.querySelectorAll('.nav-link');
+// const sections = document.querySelectorAll('.section');
+// const projectsGrid = document.getElementById('projects-grid');
+// const filterBtns = document.querySelectorAll('.filter-btn');
+// const startMissionBtn = document.getElementById('start-mission');
+// const modal = document.getElementById('project-modal');
+// const closeModal = document.getElementById('close-modal');
+// const joinMissionBtn = document.getElementById('join-mission');
+// const visitProjectBtn = document.getElementById('visit-project');
+// const notification = document.getElementById('notification');
+// const missionsContainer = document.getElementById('missions-container');
+// const badgesGrid = document.getElementById('badges-grid');
+
+// Функция для отображения уведомлений
+function showNotification(message, type = 'success') {
+    const notificationText = document.getElementById('notification-text');
+    const notificationIcon = document.querySelector('.notification-icon');
+    if (!notificationText || !notificationIcon) return; // Guard clause
+    notificationText.textContent = message;
+    // Set icon based on type
+    switch(type) {
+        case 'success':
+            notificationIcon.textContent = '✅';
+            notification.style.background = 'rgba(0, 255, 159, 0.9)';
+            break;
+        case 'warning':
+            notificationIcon.textContent = '⚠️';
+            notification.style.background = 'rgba(255, 193, 7, 0.9)';
+            break;
+        case 'error':
+            notificationIcon.textContent = '❌';
+            notification.style.background = 'rgba(220, 53, 69, 0.9)';
+            break;
+        case 'info':
+            notificationIcon.textContent = 'ℹ️';
+            notification.style.background = 'rgba(13, 110, 253, 0.9)';
+            break;
+        default:
+            notificationIcon.textContent = '✅';
+            notification.style.background = 'rgba(0, 255, 159, 0.9)';
+    }
+    notification.classList.add('show');
+    setTimeout(() => {
+        notification.classList.remove('show');
+    }, 3000);
+}
+
+// Функция для загрузки проектов из Firestore
+async function loadProjectsFromFirestore() {
+    try {
+        const querySnapshot = await db.collection('projects').get();
+        projects = [];
+        querySnapshot.forEach((doc) => {
+            const projectData = doc.data();
+            // Преобразование Timestamp в строку даты, если нужно
+            if (projectData.endDate && typeof projectData.endDate.toDate === 'function') {
+                projectData.endDate = projectData.endDate.toDate().toISOString().split('T')[0]; // Формат YYYY-MM-DD
+            }
+            projects.push({ id: parseInt(doc.id), ...projectData }); // Предполагаем, что ID - число
+        });
+        console.log("Projects loaded from Firestore:", projects);
+        renderProjects(); // Обновить отображение после загрузки
+        // Также обновить фильтры, если они зависят от динамических категорий
+        // updateFilterButtons(); // (Нужно реализовать, если фильтры не статичны)
+    } catch (error) {
+        console.error("Error loading projects from Firestore:", error);
+        showNotification("Failed to load projects.", 'error');
+    }
+}
+
+// Функция для загрузки данных пользователя из Firestore
+async function loadUserDataFromFirestore(user) {
+    if (!user) return;
+    try {
+        const doc = await db.collection('users').doc(user.uid).get();
+        if (doc.exists) {
+            const userData = doc.data();
+            currentUser = {
+                uid: user.uid,
+                email: user.email,
+                displayName: userData.displayName || user.displayName || 'Alien Explorer',
+                level: userData.level || 1,
+                isRegistered: true, // Всегда true для аутентифицированных
+                joinedProjects: userData.joinedProjects || [],
+                completedProjects: userData.completedProjects || [],
+                badges: userData.badges || []
+            };
+        } else {
+            // Если документа нет, создаем начальный
+            currentUser = {
+                uid: user.uid,
+                email: user.email,
+                displayName: user.displayName || 'Alien Explorer',
+                level: 1,
+                isRegistered: true,
+                joinedProjects: [],
+                completedProjects: [],
+                badges: []
+            };
+            await db.collection('users').doc(user.uid).set(currentUser);
+        }
+        console.log("User data loaded from Firestore:", currentUser);
+        updateUIForUser(currentUser); // Обновить UI
+        renderMissions();
+        renderProfile();
+        updateStats();
+    } catch (error) {
+        console.error("Error loading user data from Firestore:", error);
+        showNotification("Failed to load user data.", 'error');
+    }
+}
+
+// Функция для сохранения данных пользователя в Firestore
+async function saveUserDataToFirestore() {
+    if (!currentUser.uid) return; // Не сохранять, если пользователь не аутентифицирован
+    try {
+        // Сохраняем только необходимые поля
+        const userDataToSave = {
+            displayName: currentUser.displayName,
+            level: currentUser.level,
+            joinedProjects: currentUser.joinedProjects,
+            completedProjects: currentUser.completedProjects,
+            badges: currentUser.badges
+        };
+        await db.collection('users').doc(currentUser.uid).set(userDataToSave, { merge: true }); // merge: true чтобы не перезаписывать весь документ
+        console.log("User data saved to Firestore");
+    } catch (error) {
+        console.error("Error saving user data to Firestore:", error);
+        showNotification("Failed to save user data.", 'error');
+    }
+}
+
+// Функция для обновления UI в зависимости от состояния пользователя
+function updateUIForUser(user) {
+    const loginBtn = document.getElementById('login-btn'); // Предположим, есть кнопка логина
+    const logoutBtn = document.getElementById('logout-btn'); // Предположим, есть кнопка логаута
+    const profileLink = document.querySelector('.nav-link[data-section="profile"]'); // Ссылка на профиль
+
+    if (user && user.uid) {
+        // Пользователь вошел
+        if (loginBtn) loginBtn.style.display = 'none';
+        if (logoutBtn) {
+            logoutBtn.style.display = 'block';
+            logoutBtn.textContent = `Logout (${user.email})`;
+        }
+        if (profileLink) profileLink.style.display = 'flex'; // Показываем ссылку на профиль
+
+        // Обновляем имя пользователя в профиле, если нужно
+        // document.getElementById('user-name').textContent = user.displayName || user.email;
+    } else {
+        // Пользователь вышел
+        if (loginBtn) loginBtn.style.display = 'block';
+        if (logoutBtn) logoutBtn.style.display = 'none';
+        if (profileLink) profileLink.style.display = 'none'; // Скрываем ссылку на профиль
+
+        // Очищаем данные currentUser
+        currentUser = {
+            uid: null,
+            email: null,
+            displayName: 'Alien Explorer',
+            level: 1,
+            isRegistered: false,
+            joinedProjects: [],
+            completedProjects: [],
+            badges: []
+        };
+        // Очищаем UI
+        renderMissions();
+        renderProfile();
+        updateStats();
+    }
+}
+
+// Функция для регистрации пользователя
+async function registerUser(email, password) {
+    try {
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        const user = userCredential.user;
+        showNotification(`Registration successful! Welcome, ${user.email}! 🎉`, 'success');
+        // После регистрации автоматически вызовется onAuthStateChanged
+    } catch (error) {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.error("Registration error:", errorCode, errorMessage);
+        let userMessage = "Registration failed.";
+        if (errorCode === 'auth/email-already-in-use') {
+             userMessage = "Email already in use.";
+        } else if (errorCode === 'auth/invalid-email') {
+             userMessage = "Invalid email address.";
+        } else if (errorCode === 'auth/weak-password') {
+             userMessage = "Password is too weak.";
+        }
+        showNotification(userMessage, 'error');
+    }
+}
+
+// Функция для входа пользователя
+async function loginUser(email, password) {
+    try {
+        const userCredential = await auth.signInWithEmailAndPassword(email, password);
+        const user = userCredential.user;
+        showNotification(`Login successful! Welcome back, ${user.email}! 🎉`, 'success');
+        // После входа автоматически вызовется onAuthStateChanged
+    } catch (error) {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.error("Login error:", errorCode, errorMessage);
+         let userMessage = "Login failed.";
+        if (errorCode === 'auth/user-not-found' || errorCode === 'auth/wrong-password') {
+             userMessage = "Incorrect email or password.";
+        } else if (errorCode === 'auth/invalid-email') {
+             userMessage = "Invalid email address.";
+        }
+        showNotification(userMessage, 'error');
+    }
+}
+
+// Функция для выхода пользователя
+async function logoutUser() {
+    try {
+        await auth.signOut();
+        showNotification("You have been logged out.", 'info');
+        // После выхода автоматически вызовется onAuthStateChanged
+    } catch (error) {
+        console.error("Logout error:", error);
+        showNotification("Logout failed.", 'error');
+    }
+}
+
+// Обработчик состояния аутентификации
+auth.onAuthStateChanged(async (user) => {
+    if (user) {
+        // Пользователь вошел
+        console.log("User signed in:", user);
+        await loadUserDataFromFirestore(user); // Загрузить данные из Firestore
+        // updateUIForUser(user); // Вызывается внутри loadUserDataFromFirestore или после
+    } else {
+        // Пользователь вышел
+        console.log("User signed out");
+        updateUIForUser(null);
+        // Очистить отображение миссий, профиля и т.д.
+    }
+});
+
+// Функция для показа модального окна регистрации/входа
+function showAuthModal() {
+    // Создаем или показываем существующее модальное окно
+    let authModal = document.getElementById('auth-modal');
+    if (!authModal) {
+        authModal = document.createElement('div');
+        authModal.className = 'modal active';
+        authModal.id = 'auth-modal';
+        authModal.innerHTML = `
+            <div class="modal-content" style="max-width: 400px;">
+                <div class="modal-header">
+                    <h3>🔐 Authenticate</h3>
+                    <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div id="auth-form-container">
+                        <h4 id="auth-form-title">Login</h4>
+                        <input type="email" id="auth-email" placeholder="Email" style="width:100%; padding:0.5rem; margin-bottom:0.5rem; background:rgba(255,255,255,0.1); border:2px solid rgba(255,255,255,0.2); border-radius:8px; color:#fff;">
+                        <input type="password" id="auth-password" placeholder="Password" style="width:100%; padding:0.5rem; margin-bottom:1rem; background:rgba(255,255,255,0.1); border:2px solid rgba(255,255,255,0.2); border-radius:8px; color:#fff;">
+                        <button class="primary-button" id="auth-submit-btn" style="width:100%; margin-bottom:0.5rem;">Login</button>
+                        <p style="text-align:center; margin-bottom:0.5rem;"><a href="#" id="toggle-auth-mode">Don't have an account? Register</a></p>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(authModal);
+
+        // Добавляем обработчики событий
+        document.getElementById('auth-submit-btn').addEventListener('click', handleAuthSubmit);
+        document.getElementById('toggle-auth-mode').addEventListener('click', toggleAuthMode);
+    } else {
+        authModal.classList.add('active');
+    }
+}
+
+// Переключение между формами входа и регистрации
+function toggleAuthMode(e) {
+    e.preventDefault();
+    const title = document.getElementById('auth-form-title');
+    const submitBtn = document.getElementById('auth-submit-btn');
+    const toggleLink = document.getElementById('toggle-auth-mode');
+    if (title.textContent === 'Login') {
+        title.textContent = 'Register';
+        submitBtn.textContent = 'Register';
+        toggleLink.innerHTML = 'Already have an account? Login';
+    } else {
+        title.textContent = 'Login';
+        submitBtn.textContent = 'Login';
+        toggleLink.innerHTML = "Don't have an account? Register";
+    }
+}
+
+// Обработка отправки формы аутентификации
+async function handleAuthSubmit() {
+    const email = document.getElementById('auth-email').value;
+    const password = document.getElementById('auth-password').value;
+    const title = document.getElementById('auth-form-title').textContent;
+
+    if (!email || !password) {
+        showNotification("Please fill in all fields.", 'warning');
+        return;
+    }
+
+    if (title === 'Login') {
+        await loginUser(email, password);
+    } else if (title === 'Register') {
+        await registerUser(email, password);
+    }
+
+    // Закрываем модальное окно после успешной попытки (успех обрабатывается в onAuthStateChanged)
+    // document.getElementById('auth-modal')?.classList.remove('active');
+}
+
+// Обновленная функция showSection с проверкой аутентификации
+function showSection(sectionId) {
+    const restrictedSections = ['missions', 'learn', 'profile'];
+    // Вместо проверки currentUser.isRegistered, проверяем аутентификацию
+    if (restrictedSections.includes(sectionId) && !auth.currentUser) {
+        showAuthModal(); // Показываем модальное окно входа/регистрации
+        return;
+    }
+    sections.forEach(section => {
+        section.classList.remove('active');
+    });
+    document.getElementById(sectionId).classList.add('active');
+}
+
+// Обновленная функция joinMission с проверкой аутентификации
+function joinMission(projectId) {
+     if (!auth.currentUser) {
+        showAuthModal();
+        return;
+    }
+    if (currentUser.joinedProjects.includes(projectId)) {
+        showNotification('Already joined this mission!', 'warning');
+        return;
+    }
+    currentUser.joinedProjects.push(projectId);
+    // saveUserData(); // Удалено
+    saveUserDataToFirestore(); // Сохраняем в Firestore
+    updateStats();
+    checkBadges();
+    renderMissions();
+    renderProjects(); // Обновляем кнопки на карточках
+    modal.classList.remove('active');
+    const project = projects.find(p => p.id === projectId);
+    showNotification(`Successfully joined ${project.name}!`, 'success');
+}
+
+// Обновленная функция markComplete
+function markComplete(projectId) {
+     if (!auth.currentUser) return; // Добавлена проверка
+    if (!currentUser.completedProjects.includes(projectId)) {
+        currentUser.completedProjects.push(projectId);
+        // saveUserData(); // Удалено
+        saveUserDataToFirestore(); // Сохраняем в Firestore
+        updateStats();
+        checkBadges();
+        renderMissions();
+        renderProfile();
+        const project = projects.find(p => p.id === projectId);
+        showNotification(`Completed ${project.name}! 🎉`, 'success');
+    }
+}
+
+// Обновленная функция markIncomplete
+function markIncomplete(projectId) {
+     if (!auth.currentUser) return; // Добавлена проверка
+    currentUser.completedProjects = currentUser.completedProjects.filter(id => id !== projectId);
+    // saveUserData(); // Удалено
+    saveUserDataToFirestore(); // Сохраняем в Firestore
+    updateStats();
+    renderMissions();
+    renderProfile();
+    const project = projects.find(p => p.id === projectId);
+    showNotification(`Marked ${project.name} as incomplete`, 'info');
+}
+
+// Обновленная функция removeMission
+function removeMission(projectId) {
+     if (!auth.currentUser) return; // Добавлена проверка
+    currentUser.joinedProjects = currentUser.joinedProjects.filter(id => id !== projectId);
+    currentUser.completedProjects = currentUser.completedProjects.filter(id => id !== projectId);
+    // saveUserData(); // Удалено
+    saveUserDataToFirestore(); // Сохраняем в Firestore
+    updateStats();
+    renderMissions();
+    renderProjects();
+    const project = projects.find(p => p.id === projectId);
+    showNotification(`Removed ${project.name} from missions`, 'info');
+}
+
+// Обновленная функция checkBadges (убедись, что она вызывает saveUserDataToFirestore)
+function checkBadges() {
+     if (!auth.currentUser) return; // Добавлена проверка
+    // ... (логика проверки бейджей)
+    // if (earned) {
+    //     currentUser.badges.push(badge.id);
+    //     showNotification(`New badge earned: ${badge.name}! 🏆`, 'success');
+    // }
+    // saveUserData(); // Удалено
+    saveUserDataToFirestore(); // Сохраняем в Firestore
+    renderBadges();
+}
+
+
+// Инициализация приложения
+document.addEventListener('DOMContentLoaded', async function() {
+    // loadUserData(); // Удалено
+    await loadProjectsFromFirestore(); // Загружаем проекты из Firestore
+    // renderProjects(); // Вызывается внутри loadProjectsFromFirestore
+    renderMissions();
+    renderProfile();
+    renderBadges();
+    updateStats();
+
+    // Добавляем обработчик для кнопки логаута (если есть)
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', logoutUser);
+    }
+});
+
+// Экспортируем функции в глобальную область видимости (если нужно)
+window.showSection = showSection;
+window.openProjectModal = openProjectModal;
+window.joinMission = joinMission;
+window.markComplete = markComplete;
+window.markIncomplete = markIncomplete;
+window.removeMission = removeMission;
+window.showAuthModal = showAuthModal; // Экспортируем для вызова из HTML или других частей кода
+window.formatDate = formatDate; // Убедись, что formatDate определена
+
