@@ -718,7 +718,6 @@ function formatDate(dateString) {
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', async function() {
-    const sections = document.querySelectorAll('.section');
     await loadProjectsFromFirestore();
     renderMissions();
     renderProfile();
