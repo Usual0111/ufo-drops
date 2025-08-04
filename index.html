@@ -58,10 +58,20 @@
                     <span class="nav-icon">🎓</span>
                     <span>Learn</span>
                 </a>
-                <a href="#profile" class="nav-link" data-section="profile">
-                    <span class="nav-icon">👾</span>
-                    <span>Profile</span>
-                </a>
+               <!-- Ссылка на Profile. Всегда присутствует в HTML, видимостью управляет JS -->
+<a href="#profile" class="nav-link" data-section="profile" style="display:none;">
+    <span class="nav-icon">👾</span><span>Profile</span>
+</a>
+
+<!-- Кнопка Login. Изначально видна -->
+<button id="login-btn" class="nav-link" style="display:flex;">
+    <span class="nav-icon">🔐</span> Login
+</button>
+
+<!-- Кнопка Logout. Изначально скрыта -->
+<button id="logout-btn" class="nav-link" style="display:none;">
+    <span class="nav-icon">🚪</span> Logout
+</button>
 
                 
             </div>
