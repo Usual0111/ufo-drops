@@ -117,25 +117,39 @@ body {
     align-items: center;
 }
 
-.nav-link {
+/* Убедимся, что базовые стили применяются ко всем .nav-link, включая кнопки */
+.nav-link,
+a.nav-link, /* Для ссылок */
+button.nav-link { /* Для кнопок - ключевое изменение */
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    color: #ffffff;
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: #ffffff; /* Белый текст по умолчанию */
     text-decoration: none;
     padding: 0.5rem 1rem;
     border-radius: 8px;
-    transition: all 0.3s ease;
-    font-weight: 500;
-    font-size: 0.9rem;
+    /* Сброс стилей кнопки по умолчанию - ключевое изменение */
+    background: transparent; /* Прозрачный фон по умолчанию */
+    border: none; /* Убираем границу по умолчанию */
+    cursor: pointer; /* Курсор указателя */
+    transition: all 0.3s ease; /* Плавные переходы */
 }
 
-.nav-link:hover, .nav-link.active {
-    background: rgba(0, 255, 159, 0.1);
-    color: #00ff9f;
-    box-shadow: 0 0 10px rgba(0, 255, 159, 0.3);
+/* Стили при наведении и активности */
+.nav-link:hover,
+.nav-link.active,
+a.nav-link:hover,
+a.nav-link.active,
+button.nav-link:hover,
+button.nav-link.active {
+    background: rgba(0, 255, 159, 0.1); /* Светло-зеленый фон при наведении/активности */
+    color: #00ff9f; /* Светло-зеленый текст */
+    box-shadow: 0 0 10px rgba(0, 255, 159, 0.3); /* Светло-зеленая тень */
 }
 
+/* Стили для иконки внутри */
 .nav-icon {
     font-size: 1.2rem;
 }
