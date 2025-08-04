@@ -115,18 +115,38 @@ function updateUIForUser(user) {
     const loginBtn = document.getElementById('login-btn');
     const logoutBtn = document.getElementById('logout-btn');
     const profileLink = document.querySelector('.nav-link[data-section="profile"]');
+    
+    // Создаем кнопки если их нет в HTML
+    if (!loginBtn && !logoutBtn) {
+        createAuthButtons();
+    }
 
     if (user && user.uid) {
-        if (loginBtn) loginBtn.style.display = 'none';
-        if (logoutBtn) {
-            logoutBtn.style.display = 'block';
-            logoutBtn.textContent = `Logout (${user.email})`;
+        // Пользователь вошел - показываем Profile и Logout
+        const actualLoginBtn = document.getElementById('login-btn');
+        const actualLogoutBtn = document.getElementById('logout-btn');
+        
+        if (actualLoginBtn) actualLoginBtn.style.display = 'none';
+        if (actualLogoutBtn) {
+            actualLogoutBtn.style.display = 'inline-flex';
+            actualLogoutBtn.textContent = `Logout`;
+            actualLogoutBtn.title = user.email;
         }
-        if (profileLink) profileLink.style.display = 'flex';
+        if (profileLink) {
+            profileLink.style.display = 'inline-flex';
+            profileLink.classList.remove('hidden');
+        }
     } else {
-        if (loginBtn) loginBtn.style.display = 'block';
-        if (logoutBtn) logoutBtn.style.display = 'none';
-        if (profileLink) profileLink.style.display = 'none';
+        // Пользователь вышел - показываем Login, скрываем Profile
+        const actualLoginBtn = document.getElementById('login-btn');
+        const actualLogoutBtn = document.getElementById('logout-btn');
+        
+        if (actualLoginBtn) actualLoginBtn.style.display = 'inline-flex';
+        if (actualLogoutBtn) actualLogoutBtn.style.display = 'none';
+        if (profileLink) {
+            profileLink.style.display = 'none';
+            profileLink.classList.add('hidden');
+        }
 
         currentUser = {
             uid: null,
@@ -141,6 +161,30 @@ function updateUIForUser(user) {
         renderProfile();
         updateStats();
     }
+}
+
+function createAuthButtons() {
+    const nav = document.querySelector('.nav-menu');
+    if (!nav) return;
+    
+    // Создаем Login кнопку
+    const loginBtn = document.createElement('button');
+    loginBtn.id = 'login-btn';
+    loginBtn.className = 'auth-btn login-btn';
+    loginBtn.innerHTML = '🔐 Login';
+    loginBtn.addEventListener('click', showAuthModal);
+    
+    // Создаем Logout кнопку  
+    const logoutBtn = document.createElement('button');
+    logoutBtn.id = 'logout-btn';
+    logoutBtn.className = 'auth-btn logout-btn';
+    logoutBtn.innerHTML = '🚪 Logout';
+    logoutBtn.style.display = 'none';
+    logoutBtn.addEventListener('click', logoutUser);
+    
+    // Добавляем кнопки в конец навигации
+    nav.appendChild(loginBtn);
+    nav.appendChild(logoutBtn);
 }
 
 async function registerUser(email, password) {
