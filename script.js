@@ -193,6 +193,7 @@ async function logoutUser() {
 }
 
 function showAuthModal() {
+    console.log("showAuthModal called"); // <-- Добавим эту строку для отладки
     let authModal = document.getElementById('auth-modal');
     if (!authModal) {
         authModal = document.createElement('div');
@@ -271,6 +272,7 @@ auth.onAuthStateChanged(async (user) => {
 // Navigation functionality
 // Обновленная функция showSection с проверкой аутентификации Firebase
 function showSection(sectionId) {
+    console.log("showSection called with:", sectionId); // <-- Для отладки
     const restrictedSections = ['missions', 'learn', 'profile'];
 
     // Проверяем аутентификацию через Firebase, а не через старый currentUser.isRegistered
