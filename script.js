@@ -268,16 +268,39 @@ auth.onAuthStateChanged(async (user) => {
 });
 
 // Navigation functionality
+// Обновленная функция showSection с проверкой аутентификации Firebase
 function showSection(sectionId) {
     const restrictedSections = ['missions', 'learn', 'profile'];
+
+    // Проверяем аутентификацию через Firebase, а не через старый currentUser.isRegistered
     if (!auth.currentUser && restrictedSections.includes(sectionId)) {
-        showAuthModal();
+        showAuthModal(); // Показываем модальное окно Firebase аутентификации
         return;
     }
-    sections.forEach(section => {
-        section.classList.remove('active');
-    });
-    document.getElementById(sectionId).classList.add('active');
+
+    // --- ИСПРАВЛЕНИЕ ---
+    // Всегда получаем список секций прямо здесь, внутри функции
+    const sections = document.querySelectorAll('.section');
+    // Проверяем, нашлись ли секции
+    if (sections) {
+        sections.forEach(section => {
+            section.classList.remove('active');
+        });
+    } else {
+        console.warn("Sections NodeList is not found in the DOM.");
+    }
+    // --- КОНЕЦ ИСПРАВЛЕНИЯ ---
+
+    // Находим целевую секцию по ID
+    const targetSection = document.getElementById(sectionId);
+    // Проверяем, существует ли элемент с таким ID
+    if (targetSection) {
+        targetSection.classList.add('active');
+    } else {
+        console.error(`Section with id '${sectionId}' not found.`);
+        // Или показать уведомление об ошибке
+        // showNotification(`Section '${sectionId}' not found.`, 'error');
+    }
 }
 
 // Project functions
