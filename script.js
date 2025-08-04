@@ -727,6 +727,15 @@ document.addEventListener('DOMContentLoaded', async function() {
     renderBadges();
     updateStats();
 
+// Добавляем обработчик для кнопки логина
+const loginBtn = document.getElementById('login-btn');
+if (loginBtn) {
+    loginBtn.addEventListener('click', showAuthModal);
+    console.log("Event listener added to login-btn"); // Для проверки
+} else {
+    console.error("Login button not found in DOM during initialization");
+}
+    
     const logoutBtn = document.getElementById('logout-btn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', logoutUser);
