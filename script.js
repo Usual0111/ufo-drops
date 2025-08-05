@@ -363,6 +363,7 @@ function getStatusText(status) {
 }
 
 function openProjectModal(projectId) {
+    console.log("DEBUG: openProjectModal called with ID:", projectId); // <-- Добавить эту строку
     const project = projects.find(p => p.id === projectId);
     if (!project) return;
     
