@@ -435,6 +435,7 @@ this.showConfirmModal(
         }
     }
 );
+   }
     
     toggleProjectStatus(projectId) {
         const project = this.projects.find(p => p.id == projectId);
