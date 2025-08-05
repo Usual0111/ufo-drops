@@ -504,6 +504,8 @@ this.showConfirmModal(
         document.getElementById('project-description').value = project.description || '';
         document.getElementById('project-reward').value = project.potentialReward || '';
         document.getElementById('project-website').value = project.website || '';
+        document.getElementById('project-reward-pool').value = project.rewardPool || '';
+        document.getElementById('project-end-date').value = project.endDate || '';
         document.getElementById('project-steps').value = Array.isArray(project.steps) ? project.steps.join('\n') : '';
     }
     
@@ -520,7 +522,9 @@ this.showConfirmModal(
             description: formData.get('description').trim(),
             potentialReward: formData.get('potentialReward').trim(),
             website: formData.get('website').trim(),
-            steps: formData.get('steps').split('\n').map(step => step.trim()).filter(step => step)
+            steps: formData.get('steps').split('\n').map(step => step.trim()).filter(step => step),
+            rewardPool: formData.get('rewardPool').trim(),
+            endDate: formData.get('endDate').trim()
         };
         
         // Validation
