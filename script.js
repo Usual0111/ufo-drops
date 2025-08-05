@@ -148,7 +148,11 @@ async function registerUser(email, password) {
     try {
         const userCredential = await auth.createUserWithEmailAndPassword(email, password);
         const user = userCredential.user;
-        showNotification(`Registration successful! Welcome, ${user.email}! 🎉`, 'success');
+        
+        // Send email verification
+        await user.sendEmailVerification();
+        
+        showNotification(`Registration successful! Check your email ${user.email} for verification link! 🎉`, 'success');
     } catch (error) {
         const errorCode = error.code;
         console.error("Registration error:", errorCode, error.message);
@@ -192,6 +196,30 @@ async function logoutUser() {
     }
 }
 
+async function handleForgotPassword(e) {
+    e.preventDefault();
+    const email = document.getElementById('auth-email').value;
+    
+    if (!email) {
+        showNotification("Please enter your email address.", 'warning');
+        return;
+    }
+    
+    try {
+        await auth.sendPasswordResetEmail(email);
+        showNotification(`Password reset email sent to ${email}! Check your inbox.`, 'success');
+    } catch (error) {
+        console.error("Password reset error:", error);
+        let userMessage = "Failed to send password reset email.";
+        if (error.code === 'auth/user-not-found') {
+            userMessage = "No account found with this email.";
+        } else if (error.code === 'auth/invalid-email') {
+            userMessage = "Invalid email address.";
+        }
+        showNotification(userMessage, 'error');
+    }
+}
+
 function showAuthModal() {
     console.log("showAuthModal called"); // <-- Добавим эту строку для отладки
     let authModal = document.getElementById('auth-modal');
@@ -212,6 +240,7 @@ function showAuthModal() {
                         <input type="password" id="auth-password" placeholder="Password" style="width:100%; padding:0.5rem; margin-bottom:1rem; background:rgba(255,255,255,0.1); border:2px solid rgba(255,255,255,0.2); border-radius:8px; color:#fff;">
                         <button class="primary-button" id="auth-submit-btn" style="width:100%; margin-bottom:0.5rem;">Login</button>
                         <p style="text-align:center; margin-bottom:0.5rem;"><a href="#" id="toggle-auth-mode">Don't have an account? Register</a></p>
+                        <p style="text-align:center; margin-bottom:0.5rem;"><a href="#" id="forgot-password-link">Forgot password?</a></p>
                     </div>
                 </div>
             </div>
@@ -220,6 +249,7 @@ function showAuthModal() {
 
         document.getElementById('auth-submit-btn').addEventListener('click', handleAuthSubmit);
         document.getElementById('toggle-auth-mode').addEventListener('click', toggleAuthMode);
+        document.getElementById('forgot-password-link').addEventListener('click', handleForgotPassword);
     } else {
         authModal.classList.add('active');
     }
