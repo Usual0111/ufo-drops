@@ -325,7 +325,7 @@ row.innerHTML = `
     </td>
     <td>
         <div class="project-tags">
-            ${project.tags.map(tag => `<span class="project-tag">${this.escapeHtml(tag)}</span>`).join('')}
+            ${project.tags.map(tag => '<span class="project-tag">' + this.escapeHtml(tag) + '</span>').join('')}
         </div>
     </td>
     <td>${this.escapeHtml(project.potentialReward || 'TBA')}</td>
