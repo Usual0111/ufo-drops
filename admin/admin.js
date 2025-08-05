@@ -111,6 +111,8 @@ class AdminManager {
         const querySnapshot = await db.collection('projects').get();
         this.projects = [];
         querySnapshot.forEach((doc) => {
+            console.log("Loaded projects:", this.projects);
+            console.log("Projects count:", this.projects.length);
             const projectData = doc.data();
             if (projectData.endDate && typeof projectData.endDate.toDate === 'function') {
                 projectData.endDate = projectData.endDate.toDate().toISOString().split('T')[0];
@@ -289,6 +291,7 @@ generateId() {
     }
     
     renderProjects() {
+        console.log("Rendering projects:", this.filteredProjects.length);
         if (this.filteredProjects.length === 0) {
             this.showEmptyState();
             return;
@@ -327,17 +330,17 @@ generateId() {
             </td>
             <td>${this.escapeHtml(project.potentialReward || 'TBA')}</td>
             <td>
-                <div class="table-actions">
-                    <button class="action-btn edit-btn" onclick="adminManager.editProject('${project.id}')" title="Edit">
-                        ✏️
-                    </button>
-                    <button class="action-btn delete-btn" onclick="adminManager.deleteProject('${project.id}')" title="Delete">
-                        🗑️
-                    </button>
-                    <button class="action-btn toggle-btn" onclick="adminManager.toggleProjectStatus('${project.id}')" title="Toggle Status">
-                        🔄
-                    </button>
-                </div>
+<div class="table-actions">
+   <button class="action-btn edit-btn" onclick="adminManager.editProject(\`${project.id}\`)" title="Edit">
+       ✏️
+   </button>
+   <button class="action-btn delete-btn" onclick="adminManager.deleteProject(\`${project.id}\`)" title="Delete">
+       🗑️
+   </button>
+   <button class="action-btn toggle-btn" onclick="adminManager.toggleProjectStatus(\`${project.id}\`)" title="Toggle Status">
+       🔄
+   </button>
+</div>
             </td>
         `;
         
