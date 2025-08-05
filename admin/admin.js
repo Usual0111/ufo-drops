@@ -25,15 +25,14 @@ class AdminManager {
         this.upcomingProjects = document.getElementById('upcoming-projects');
         this.closedProjects = document.getElementById('closed-projects');
         
-        this.init();
     }
     
     async init() {
-        await this.loadProjects();
-        this.bindEvents();
-        this.renderProjects();
-        this.updateStats();
-    }
+    await this.loadProjects();
+    this.bindEvents();
+    this.renderProjects();
+    this.updateStats();
+}
     
     bindEvents() {
         // Search and filters
@@ -206,9 +205,9 @@ async saveProjects() {
         ];
     }
     
-    generateId() {
-        return Date.now() + Math.random().toString(36).substr(2, 9);
-    }
+generateId() {
+    return 'project_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+}
     
     handleSearch() {
         const searchTerm = this.searchInput.value.toLowerCase().trim();
@@ -713,11 +712,11 @@ window.showNotification = function(message, type = 'info') {
 let adminManager;
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Wait for auth to be ready
-    setTimeout(() => {
+    setTimeout(async () => {
         if (window.authManager && window.authManager.isAuthenticated()) {
             adminManager = new AdminManager();
             window.adminManager = adminManager;
+            await adminManager.init();
         }
     }, 100);
 });
