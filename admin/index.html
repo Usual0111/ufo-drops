@@ -6,6 +6,27 @@
     <title>UFO Drops - Admin Panel</title>
     <link rel="stylesheet" href="admin.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<!-- Firebase App (the core Firebase SDK) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<!-- Firebase Authentication -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<!-- Firebase Firestore -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCMcR82zwhu8y_n7Un7BFxWsTDIogQKqRo",
+    authDomain: "ufo-drops.firebaseapp.com",
+    projectId: "ufo-drops",
+    storageBucket: "ufo-drops.firebasestorage.app",
+    messagingSenderId: "297472887464",
+    appId: "1:297472887464:web:a221daaaeb4d247024109d"
+  };
+  
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+</script>
 </head>
 <body>
     <!-- Background stars -->
