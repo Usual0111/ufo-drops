@@ -336,11 +336,12 @@ function renderProjects(filter = 'all') {
             <p class="project-description">${project.description}</p>
             <div class="project-actions">
                 <button class="primary-button" onclick="openProjectModal(${project.id})">
-                    <span class="button-icon">${isJoined ? 'рџ‘ЃпёЏ' : 'рџљЂ'}</span>
+                    <span class="button-icon">${isJoined ? '👁️' : '🚀'}</span>
                     ${isJoined ? 'View Details' : 'Join Drop'}
                 </button>
             </div>
         `;
+
         
         if (isCompleted) {
             projectCard.style.opacity = '0.7';
