@@ -310,39 +310,39 @@ generateId() {
     
     createProjectRow(project) {
         const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>
-                <strong>${this.escapeHtml(project.name)}</strong>
-                <br>
-                <small style="color: rgba(255,255,255,0.6);">${this.escapeHtml(project.description.substring(0, 50))}...</small>
-            </td>
-            <td class="project-logo">${project.logo}</td>
-            <td>
-                <span class="project-tag">${this.getCategoryName(project.category)}</span>
-            </td>
-            <td>
-                <span class="project-status status-${project.status}">${this.getStatusName(project.status)}</span>
-            </td>
-            <td>
-                <div class="project-tags">
-                    ${project.tags.map(tag => `<span class="project-tag">${this.escapeHtml(tag)}</span>`).join('')}
-                </div>
-            </td>
-            <td>${this.escapeHtml(project.potentialReward || 'TBA')}</td>
-            <td>
-<div class="table-actions">
-   <button class="action-btn edit-btn" onclick="adminManager.editProject(\`${project.id}\`)" title="Edit">
-       ✏️
-   </button>
-   <button class="action-btn delete-btn" onclick="adminManager.deleteProject(\`${project.id}\`)" title="Delete">
-       🗑️
-   </button>
-   <button class="action-btn toggle-btn" onclick="adminManager.toggleProjectStatus(\`${project.id}\`)" title="Toggle Status">
-       🔄
-   </button>
-</div>
-            </td>
-        `;
+row.innerHTML = `
+    <td>
+        <strong>${this.escapeHtml(project.name)}</strong>
+        <br>
+        <small style="color: rgba(255,255,255,0.6);">${this.escapeHtml(project.description.substring(0, 50))}...</small>
+    </td>
+    <td class="project-logo">${project.logo}</td>
+    <td>
+        <span class="project-tag">${this.getCategoryName(project.category)}</span>
+    </td>
+    <td>
+        <span class="project-status status-${project.status}">${this.getStatusName(project.status)}</span>
+    </td>
+    <td>
+        <div class="project-tags">
+            ${project.tags.map(tag => `<span class="project-tag">${this.escapeHtml(tag)}</span>`).join('')}
+        </div>
+    </td>
+    <td>${this.escapeHtml(project.potentialReward || 'TBA')}</td>
+    <td>
+        <div class="table-actions">
+            <button class="action-btn edit-btn" onclick="adminManager.editProject('${project.id}')" title="Edit">
+                ✏️
+            </button>
+            <button class="action-btn delete-btn" onclick="adminManager.deleteProject('${project.id}')" title="Delete">
+                🗑️
+            </button>
+            <button class="action-btn toggle-btn" onclick="adminManager.toggleProjectStatus('${project.id}')" title="Toggle Status">
+                🔄
+            </button>
+        </div>
+    </td>
+`;
         
         return row;
     }
