@@ -46,7 +46,7 @@ async function loadProjectsFromFirestore() {
             if (projectData.endDate && typeof projectData.endDate.toDate === 'function') {
                 projectData.endDate = projectData.endDate.toDate().toISOString().split('T')[0];
             }
-            projects.push({ id: parseInt(doc.id), ...projectData });
+            projects.push({ id: doc.id, ...projectData });
         });
         console.log("Projects loaded from Firestore:", projects);
         renderProjects();
@@ -335,7 +335,7 @@ function renderProjects(filter = 'all') {
             </div>
             <p class="project-description">${project.description}</p>
             <div class="project-actions">
-                <button class="primary-button" onclick="openProjectModal(${project.id})">
+                <button class="primary-button" onclick="openProjectModal('${project.id}')">
                     <span class="button-icon">${isJoined ? '👁️' : '🚀'}</span>
                     ${isJoined ? 'View Details' : 'Join Drop'}
                 </button>
@@ -365,7 +365,7 @@ function getStatusText(status) {
 
 function openProjectModal(projectId) {
     console.log("DEBUG: openProjectModal called with ID:", projectId); // <-- Добавить эту строку
-    const project = projects.find(p => p.id === projectId);
+    const project = projects.find(p => p.id == projectId);
     console.log("DEBUG: Found project object:", project); // <-- Добавить эту строку
     if (!project) {
         console.error("DEBUG: Project not found for ID:", projectId);
