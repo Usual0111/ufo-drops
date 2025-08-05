@@ -365,6 +365,11 @@ function getStatusText(status) {
 function openProjectModal(projectId) {
     console.log("DEBUG: openProjectModal called with ID:", projectId); // <-- Добавить эту строку
     const project = projects.find(p => p.id === projectId);
+    console.log("DEBUG: Found project object:", project); // <-- Добавить эту строку
+    if (!project) {
+        console.error("DEBUG: Project not found for ID:", projectId);
+        return;
+    }
     if (!project) return;
     
     const isJoined = currentUser.joinedProjects.includes(project.id);
