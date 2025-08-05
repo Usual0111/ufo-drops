@@ -28,8 +28,8 @@ class AdminManager {
         this.init();
     }
     
-    init() {
-        this.loadProjects();
+    async init() {
+        await this.loadProjects();
         this.bindEvents();
         this.renderProjects();
         this.updateStats();
@@ -107,38 +107,45 @@ class AdminManager {
         }
     }
     
-    loadProjects() {
-        // Load from localStorage (same storage as main site)
-        const savedProjects = localStorage.getItem('ufoDropsProjects');
-        if (savedProjects) {
-            try {
-                this.projects = JSON.parse(savedProjects);
-            } catch (e) {
-                console.error('Error parsing saved projects:', e);
-                this.projects = this.getDefaultProjects();
+    async loadProjects() {
+    try {
+        const querySnapshot = await db.collection('projects').get();
+        this.projects = [];
+        querySnapshot.forEach((doc) => {
+            const projectData = doc.data();
+            if (projectData.endDate && typeof projectData.endDate.toDate === 'function') {
+                projectData.endDate = projectData.endDate.toDate().toISOString().split('T')[0];
             }
-        } else {
-            // Default projects if none exist
-            this.projects = this.getDefaultProjects();
-            this.saveProjects();
-        }
+            this.projects.push({ id: doc.id, ...projectData });
+        });
+        console.log("Projects loaded from Firestore:", this.projects);
+        this.filteredProjects = [...this.projects];
+    } catch (error) {
+        console.error("Error loading projects from Firestore:", error);
+        this.showNotification("Failed to load projects.", 'error');
+        // Fallback to default projects
+        this.projects = this.getDefaultProjects();
         this.filteredProjects = [...this.projects];
     }
+}
     
-    saveProjects() {
-        try {
-            localStorage.setItem('ufoDropsProjects', JSON.stringify(this.projects));
-            // Also backup to admin storage
-            localStorage.setItem('ufoDropsProjectsBackup', JSON.stringify({
-                data: this.projects,
-                timestamp: Date.now(),
-                version: '1.0'
-            }));
-        } catch (e) {
-            console.error('Error saving projects:', e);
-            this.showNotification('Error saving projects!', 'error');
-        }
+async saveProjects() {
+    try {
+        // Save each project to Firestore
+        const batch = db.batch();
+        this.projects.forEach(project => {
+            const projectRef = db.collection('projects').doc(project.id);
+            const { id, ...projectData } = project;
+            batch.set(projectRef, projectData, { merge: true });
+        });
+        await batch.commit();
+        console.log("Projects saved to Firestore");
+        this.showNotification("Projects saved successfully!", 'success');
+    } catch (error) {
+        console.error("Error saving projects to Firestore:", error);
+        this.showNotification("Failed to save projects.", 'error');
     }
+}
     
     getDefaultProjects() {
         return [
@@ -408,20 +415,24 @@ class AdminManager {
     }
     
     deleteProject(projectId) {
-        const project = this.projects.find(p => p.id == projectId);
-        if (!project) return;
-        
-        this.showConfirmModal(
-            'Delete Project',
-            `Are you sure you want to delete "${project.name}"? This action cannot be undone.`,
-            () => {
-                this.projects = this.projects.filter(p => p.id != projectId);
-                this.saveProjects();
-                this.applyFilters();
-                this.showNotification('Project deleted successfully!', 'success');
-            }
-        );
+const project = this.projects.find(p => p.id == projectId);
+if (!project) return;
+
+this.showConfirmModal(
+    'Delete Project',
+    `Are you sure you want to delete "${project.name}"? This action cannot be undone.`,
+    async () => {
+        try {
+            await db.collection('projects').doc(projectId).delete();
+            this.projects = this.projects.filter(p => p.id != projectId);
+            this.applyFilters();
+            this.showNotification('Project deleted successfully!', 'success');
+        } catch (error) {
+            console.error("Error deleting project:", error);
+            this.showNotification('Failed to delete project!', 'error');
+        }
     }
+);
     
     toggleProjectStatus(projectId) {
         const project = this.projects.find(p => p.id == projectId);
@@ -493,7 +504,7 @@ class AdminManager {
         document.getElementById('project-steps').value = Array.isArray(project.steps) ? project.steps.join('\n') : '';
     }
     
-    handleFormSubmit(e) {
+    async handleFormSubmit(e) {
         e.preventDefault();
         
         const formData = new FormData(this.projectForm);
@@ -533,6 +544,7 @@ class AdminManager {
         }
         
         this.saveProjects();
+        await this.saveProjects();
         this.applyFilters();
         this.closeModal();
     }
