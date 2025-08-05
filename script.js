@@ -322,32 +322,25 @@ function renderProjects(filter = 'all') {
         
         const projectCard = document.createElement('div');
         projectCard.className = 'project-card';
-// Замените ВСЮ строку projectCard.innerHTML = '...'; на эту:
-projectCard.innerHTML = `
-    <div class="project-logo">${project.logo}</div>
-    <div class="project-info">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-            <h3>${project.name}</h3>
-            <span class="project-status ${project.status}">${getStatusText(project.status)}</span>
-        </div>
-        <div class="project-tags">
-            ${project.tags.map(tag => `<span class="project-tag">${tag}</span>`).join('')}
-        </div>
-        <p class="project-description">${project.description}</p>
-        <div class="project-rewards">
-            <div class="potential-reward">
-                <span class="reward-label">Potential:</span>
-                <span class="reward-value">${project.potentialReward}</span>
+        projectCard.innerHTML = `
+            <div class="project-header">
+                <div class="project-logo">${project.logo}</div>
+                <div class="project-info">
+                    <h3>${project.name}</h3>
+                    <div class="project-status ${project.status}">${getStatusText(project.status)}</div>
+                </div>
             </div>
-        </div>
-        <div class="project-actions">
-            <button class="primary-button" onclick="openProjectModal(${project.id})">
-                <span class="button-icon">${isJoined ? '👁️' : '🚀'}</span>
-                ${isJoined ? 'View Details' : 'Join Drop'}
-            </button>
-        </div>
-    </div>
-`;
+            <div class="project-tags">
+                ${project.tags.map(tag => `<span class="project-tag">${tag}</span>`).join('')}
+            </div>
+            <p class="project-description">${project.description}</p>
+            <div class="project-actions">
+                <button class="primary-button" onclick="openProjectModal(${project.id})">
+                    <span class="button-icon">${isJoined ? 'рџ‘ЃпёЏ' : 'рџљЂ'}</span>
+                    ${isJoined ? 'View Details' : 'Join Drop'}
+                </button>
+            </div>
+        `;
         
         if (isCompleted) {
             projectCard.style.opacity = '0.7';
