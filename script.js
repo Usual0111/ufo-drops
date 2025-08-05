@@ -291,6 +291,9 @@ async function handleAuthSubmit() {
 // Auth state observer
 auth.onAuthStateChanged(async (user) => {
     if (user) {
+if (!user.emailVerified) {
+    showNotification("Please verify your email address before accessing all features.", 'warning');
+}
         console.log("User signed in:", user);
         await loadUserDataFromFirestore(user);
     } else {
