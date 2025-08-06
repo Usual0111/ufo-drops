@@ -615,10 +615,10 @@ function renderMissions() {
             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
                 <span style="color: #00ff9f; font-weight: 600;">${progress}% Complete</span>
                 <div style="display: flex; gap: 1rem;">
-                    ${isCompleted ? 
-                        '<button class="secondary-button" onclick="markIncomplete(\'${projectId}\')">Mark Incomplete</button>' :
-                        '<button class="primary-button" onclick="markComplete(\'${projectId}\')">Mark Complete</button>'
-                    }
+                   ${isCompleted ? 
+    `<button class="secondary-button" onclick="markIncomplete('${projectId}')">Mark Incomplete</button>` :
+    `<button class="primary-button" onclick="markComplete('${projectId}')">Mark Complete</button>`
+}
                     <button class="secondary-button" onclick="openMissionDetailsModal(${projectId})">View Details</button>
                 </div>
             </div>
