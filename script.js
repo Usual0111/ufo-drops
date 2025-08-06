@@ -563,7 +563,7 @@ function renderMissions() {
                 <span class="empty-icon">🛸</span>
                 <h3>No missions yet</h3>
                 <p>Start exploring drops to begin your crypto journey!</p>
-                <button class="secondary-button" onclick="showSection('home')">Explore Drops</button>
+                <button class="secondary-button" onclick="openMissionDetailsModal('${projectId}')">View Details</button>
             </div>
         `;
         return;
