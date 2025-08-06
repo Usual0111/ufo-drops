@@ -472,6 +472,68 @@ function closeProjectModal() {
     }
 }
 
+function openMissionDetailsModal(projectId) {
+    const project = projects.find(p => p.id == projectId);
+    if (!project) return;
+    
+    const modal = document.getElementById('mission-details-modal');
+    
+    // Populate basic info
+    document.getElementById('mission-modal-title').textContent = `${project.name} - Mission Details`;
+    document.getElementById('mission-modal-logo').textContent = project.logo;
+    document.getElementById('mission-modal-name').textContent = project.name;
+    document.getElementById('mission-modal-description').textContent = project.description;
+    
+    // Populate daily tasks
+    const dailyTasksContainer = document.getElementById('mission-daily-tasks');
+    const dailyTasks = [
+        'Launch node or app',
+        'Share internet through connection',
+        'Check personal dashboard for activity',
+        'Open project Telegram bot'
+    ];
+    
+    dailyTasksContainer.innerHTML = dailyTasks.map(task => 
+        `<div class="daily-task">✅ ${task}</div>`
+    ).join('');
+    
+    // Populate updates
+    const updatesContainer = document.getElementById('mission-updates');
+    const updates = [
+        { date: '04.08', text: 'Increased snapshot participation chances' },
+        { date: '03.08', text: 'Added Telegram quest' },
+        { date: '01.08', text: 'First drops announced for September' }
+    ];
+    
+    updatesContainer.innerHTML = updates.map(update => 
+        `<div class="update-item">[${update.date}] ${update.text}</div>`
+    ).join('');
+    
+    // Populate links
+    const linksContainer = document.getElementById('mission-links');
+    const links = [
+        { icon: '🌐', text: 'Website', url: project.website },
+        { icon: '📱', text: 'App/Node', url: project.website },
+        { icon: '💬', text: 'Discord', url: '#' },
+        { icon: '🐦', text: 'Twitter', url: '#' },
+        { icon: '📄', text: 'Docs', url: '#' }
+    ];
+    
+    linksContainer.innerHTML = links.map(link => 
+        `<a href="${link.url}" target="_blank" class="project-link-btn">
+            <span class="link-icon">${link.icon}</span>
+            <span>${link.text}</span>
+        </a>`
+    ).join('');
+    
+    modal.classList.add('active');
+}
+
+function closeMissionDetailsModal() {
+    const modal = document.getElementById('mission-details-modal');
+    modal.classList.remove('active');
+}
+
 function joinMission(projectId) {
     if (!auth.currentUser) {
         showAuthModal();
@@ -557,7 +619,7 @@ function renderMissions() {
                         '<button class="secondary-button" onclick="markIncomplete(' + projectId + ')">Mark Incomplete</button>' :
                         '<button class="primary-button" onclick="markComplete(' + projectId + ')">Mark Complete</button>'
                     }
-                    <button class="secondary-button" onclick="openProjectModal(' + projectId + ')">View Details</button>
+                    <button class="secondary-button" onclick="openMissionDetailsModal(' + projectId + ')">View Details</button>
                 </div>
             </div>
         `;
@@ -794,6 +856,13 @@ if (loginBtn) {
     // Modal close
     if (closeModal) {
         closeModal.addEventListener('click', closeProjectModal);
+        
+        document.getElementById('close-mission-modal').addEventListener('click', closeMissionDetailsModal);
+document.getElementById('mission-details-modal').addEventListener('click', function(e) {
+    if (e.target === document.getElementById('mission-details-modal')) {
+        closeMissionDetailsModal();
+    }
+});
     }
     if (modal) {
         modal.addEventListener('click', function(e) {
@@ -848,6 +917,8 @@ window.removeMission = removeMission;
 window.showRemoveModal = showRemoveModal;
 window.showAuthModal = showAuthModal;
 window.closeProjectModal = closeProjectModal;
+window.openMissionDetailsModal = openMissionDetailsModal;
+window.closeMissionDetailsModal = closeMissionDetailsModal;
 window.formatDate = formatDate;
 
 // Search functionality
