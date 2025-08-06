@@ -593,7 +593,7 @@ function renderMissions() {
         missionCard.className = 'mission-card';
         missionCard.style.position = 'relative';
         missionCard.innerHTML = `
-            <button class="remove-mission-btn" onclick="showRemoveModal(${projectId})" title="Remove from missions">
+            <button class="remove-mission-btn" onclick="showRemoveModal('${projectId}')" title="Remove from missions">
                 <span>×</span>
             </button>
             <div class="mission-header">
@@ -616,8 +616,8 @@ function renderMissions() {
                 <span style="color: #00ff9f; font-weight: 600;">${progress}% Complete</span>
                 <div style="display: flex; gap: 1rem;">
                     ${isCompleted ? 
-                        '<button class="secondary-button" onclick="markIncomplete(' + projectId + ')">Mark Incomplete</button>' :
-                        '<button class="primary-button" onclick="markComplete(' + projectId + ')">Mark Complete</button>'
+                        '<button class="secondary-button" onclick="markIncomplete('${projectId}')">Mark Incomplete</button>' :
+                        '<button class="primary-button" onclick="markComplete('${projectId}')">Mark Complete</button>'
                     }
                     <button class="secondary-button" onclick="openMissionDetailsModal(' + projectId + ')">View Details</button>
                 </div>
