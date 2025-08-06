@@ -479,6 +479,7 @@ function openMissionDetailsModal(projectId) {
     if (!project) return;
     
     const modal = document.getElementById('mission-details-modal');
+console.log("Modal element found:", modal);
     
     // Populate basic info
     document.getElementById('mission-modal-title').textContent = `${project.name} - Mission Details`;
