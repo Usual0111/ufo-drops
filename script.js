@@ -473,7 +473,9 @@ function closeProjectModal() {
 }
 
 function openMissionDetailsModal(projectId) {
-    const project = projects.find(p => p.id == projectId);
+    console.log("openMissionDetailsModal called with:", projectId, typeof projectId);
+    const project = projects.find(p => p.id === projectId || p.id === parseInt(projectId));
+    console.log("Found project:", project);
     if (!project) return;
     
     const modal = document.getElementById('mission-details-modal');
