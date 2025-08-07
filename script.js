@@ -479,7 +479,7 @@ function openMissionDetailsModal(projectId) {
     if (!project) return;
     
     const modal = document.getElementById('mission-details-modal');
-console.log("Modal element found:", modal);
+    console.log("Modal element found:", modal);
     
     // Populate basic info
     document.getElementById('mission-modal-title').textContent = `${project.name} - Mission Details`;
@@ -529,16 +529,17 @@ console.log("Modal element found:", modal);
         </a>`
     ).join('');
     
+    // Правильно открываем модальное окно
     modal.classList.add('active');
-    modal.style.display = 'flex';
-modal.style.zIndex = '9999';
-console.log("Modal display style:", modal.style.display);
-console.log("Modal computed style:", window.getComputedStyle(modal).display);
+    console.log("Modal opened, classes:", modal.className);
 }
 
 function closeMissionDetailsModal() {
     const modal = document.getElementById('mission-details-modal');
-    modal.classList.remove('active');
+    if (modal) {
+        modal.classList.remove('active');
+        console.log("Modal closed");
+    }
 }
 
 function joinMission(projectId) {
@@ -860,17 +861,28 @@ if (loginBtn) {
         });
     });
 
-    // Modal close
+// Modal close handlers - ИСПРАВЛЕННАЯ ВЕРСИЯ
     if (closeModal) {
         closeModal.addEventListener('click', closeProjectModal);
-        
-        document.getElementById('close-mission-modal').addEventListener('click', closeMissionDetailsModal);
-document.getElementById('mission-details-modal').addEventListener('click', function(e) {
-    if (e.target === document.getElementById('mission-details-modal')) {
-        closeMissionDetailsModal();
     }
-});
+
+    // Обработчик для закрытия mission details modal
+    const closeMissionModalBtn = document.getElementById('close-mission-modal');
+    if (closeMissionModalBtn) {
+        closeMissionModalBtn.addEventListener('click', closeMissionDetailsModal);
     }
+
+    // Обработчик клика по фону mission details modal
+    const missionDetailsModal = document.getElementById('mission-details-modal');
+    if (missionDetailsModal) {
+        missionDetailsModal.addEventListener('click', function(e) {
+            if (e.target === missionDetailsModal) {
+                closeMissionDetailsModal();
+            }
+        });
+    }
+
+    // Обработчик для основного проект модала
     if (modal) {
         modal.addEventListener('click', function(e) {
             if (e.target === modal) {
