@@ -233,7 +233,7 @@
         </section>
     </main>
 
-    <!-- Project Modal -->
+<!-- Project Modal -->
     <div class="modal" id="project-modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -252,58 +252,78 @@
                         </div>
                     </div>
                 </div>
-
-<!-- Mission Details Modal -->
-<div class="modal" id="mission-details-modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3 id="mission-modal-title">Mission Details</h3>
-            <button class="close-btn" id="close-mission-modal">&times;</button>
-        </div>
-        <div class="modal-body">
-            <div class="mission-overview">
-                <div class="project-logo" id="mission-modal-logo">🚀</div>
-                <div class="project-details">
-                    <h4 id="mission-modal-name">Project Name</h4>
-                    <p id="mission-modal-description">Project description...</p>
+                
+                <div class="mission-checklist">
+                    <h4>📋 Mission Steps:</h4>
+                    <div class="checklist" id="modal-checklist">
+                        <!-- Steps will be populated by JavaScript -->
+                    </div>
                 </div>
-            </div>
-            
-            <div class="daily-tasks-section">
-                <h4>📅 Daily Tasks</h4>
-                <div class="daily-checklist" id="mission-daily-tasks">
-                    <!-- Daily tasks will be populated -->
-                </div>
-                <p class="daily-tip">💡 <em>Complete at least 1-2 actions daily to stay active.</em></p>
-            </div>
-            
-            <div class="project-updates-section">
-                <h4>📰 Project Updates</h4>
-                <div class="updates-list" id="mission-updates">
-                    <!-- Updates will be populated -->
-                </div>
-            </div>
-            
-            <div class="boost-chances-section">
-                <h4>🧠 Boost your chances:</h4>
-                <ul class="boost-list">
-                    <li>🎯 Use project from different devices</li>
-                    <li>🧪 Complete more than 70% of missions</li>
-                    <li>👥 Refer friends with your link</li>
-                    <li>💬 Participate in Discord (role farming)</li>
-                </ul>
-            </div>
-            
-            <div class="project-links-section">
-                <h4>🧷 Useful Links</h4>
-                <div class="project-links" id="mission-links">
-                    <!-- Links will be populated -->
+                
+                <div class="modal-actions">
+                    <button class="primary-button" id="join-mission">
+                        <span class="button-icon">🚀</span>
+                        Join Mission
+                    </button>
+                    <button class="secondary-button" id="visit-project">
+                        <span class="button-icon">🔗</span>
+                        Visit Project
+                    </button>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
+    <!-- Mission Details Modal -->
+    <div class="modal" id="mission-details-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="mission-modal-title">Mission Details</h3>
+                <button class="close-btn" id="close-mission-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="mission-overview">
+                    <div class="project-logo" id="mission-modal-logo">🚀</div>
+                    <div class="project-details">
+                        <h4 id="mission-modal-name">Project Name</h4>
+                        <p id="mission-modal-description">Project description...</p>
+                    </div>
+                </div>
+                
+                <div class="daily-tasks-section">
+                    <h4>📅 Daily Tasks</h4>
+                    <div class="daily-checklist" id="mission-daily-tasks">
+                        <!-- Daily tasks will be populated -->
+                    </div>
+                    <p class="daily-tip">💡 <em>Complete at least 1-2 actions daily to stay active.</em></p>
+                </div>
+                
+                <div class="project-updates-section">
+                    <h4>📰 Project Updates</h4>
+                    <div class="updates-list" id="mission-updates">
+                        <!-- Updates will be populated -->
+                    </div>
+                </div>
+                
+                <div class="boost-chances-section">
+                    <h4>🧠 Boost your chances:</h4>
+                    <ul class="boost-list">
+                        <li>🎯 Use project from different devices</li>
+                        <li>🧪 Complete more than 70% of missions</li>
+                        <li>👥 Refer friends with your link</li>
+                        <li>💬 Participate in Discord (role farming)</li>
+                    </ul>
+                </div>
+                
+                <div class="project-links-section">
+                    <h4>🧷 Useful Links</h4>
+                    <div class="project-links" id="mission-links">
+                        <!-- Links will be populated -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
                 
                 <div class="mission-checklist">
                     <h4>📋 Mission Steps:</h4>
