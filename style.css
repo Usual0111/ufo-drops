@@ -1065,3 +1065,22 @@ button.nav-link.active {
 #registration-modal .modal-content {
     border-color: #ff00ff; /* Optional: different color for registration */
 }
+/*specific test for modal*/
+#mission-details-modal {
+    background-color: rgba(255, 0, 0, 0.5) !important;
+    z-index: 99999 !important;
+}
+
+#mission-details-modal.active {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: all !important;
+}
+
+#mission-details-modal .modal-content {
+    background: rgba(255, 255, 255, 0.95) !important;
+    color: #000 !important;
+    border: 5px solid red !important;
+    z-index: 100000 !important;
+}
