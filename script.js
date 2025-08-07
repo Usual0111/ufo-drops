@@ -530,6 +530,10 @@ console.log("Modal element found:", modal);
     ).join('');
     
     modal.classList.add('active');
+    modal.style.display = 'flex';
+modal.style.zIndex = '9999';
+console.log("Modal display style:", modal.style.display);
+console.log("Modal computed style:", window.getComputedStyle(modal).display);
 }
 
 function closeMissionDetailsModal() {
