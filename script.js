@@ -88,8 +88,10 @@ async function loadUserDataFromFirestore(user) {
         renderMissions();
         renderProfile();
         updateStats();
-    } catch (error) {
-        console.error("Error loading user data from Firestore:", error);
+} catch (error) {
+    console.error("Error loading user data from Firestore:", error);
+    // Удаляем показ ошибки для неавторизованных пользователей
+    if (error.code !== 'permission-denied') {
         showNotification("Failed to load user data.", 'error');
     }
 }
@@ -290,12 +292,12 @@ async function handleAuthSubmit() {
 
 // Auth state observer
 auth.onAuthStateChanged(async (user) => {
-    if (user) {
-if (!user.emailVerified) {
-    showNotification("Please verify your email address before accessing all features.", 'warning');
-}
+    if (user && user.emailVerified) {
         console.log("User signed in:", user);
         await loadUserDataFromFirestore(user);
+    } else if (user && !user.emailVerified) {
+        showNotification("Please verify your email address.", 'warning');
+        updateUIForUser(null);
     } else {
         console.log("User signed out");
         updateUIForUser(null);
@@ -866,25 +868,39 @@ if (loginBtn) {
     });
 
 // Modal close handlers - ИСПРАВЛЕННАЯ ВЕРСИЯ
-    if (closeModal) {
-        closeModal.addEventListener('click', closeProjectModal);
-    }
+if (closeModal) {
+    closeModal.addEventListener('click', function(e) {
+        e.preventDefault();
+        closeProjectModal();
+    });
+}
 
-    // Обработчик для закрытия mission details modal
-    const closeMissionModalBtn = document.getElementById('close-mission-modal');
-    if (closeMissionModalBtn) {
-        closeMissionModalBtn.addEventListener('click', closeMissionDetailsModal);
-    }
+// Обработчик для закрытия mission details modal
+const closeMissionModalBtn = document.getElementById('close-mission-modal');
+if (closeMissionModalBtn) {
+    closeMissionModalBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        closeMissionDetailsModal();
+    });
+}
 
-    // Обработчик клика по фону mission details modal
-    const missionDetailsModal = document.getElementById('mission-details-modal');
-    if (missionDetailsModal) {
-        missionDetailsModal.addEventListener('click', function(e) {
-            if (e.target === missionDetailsModal) {
-                closeMissionDetailsModal();
-            }
-        });
-    }
+// Обработчик клика по фону для обоих модалов
+if (modal) {
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeProjectModal();
+        }
+    });
+}
+
+const missionDetailsModal = document.getElementById('mission-details-modal');
+if (missionDetailsModal) {
+    missionDetailsModal.addEventListener('click', function(e) {
+        if (e.target === missionDetailsModal) {
+            closeMissionDetailsModal();
+        }
+    });
+}
 
     // Обработчик для основного проект модала
     if (modal) {
@@ -922,13 +938,14 @@ if (loginBtn) {
     });
 
     // Start mission button
-    if (startMissionBtn) {
-        startMissionBtn.addEventListener('click', function() {
-            showSection('home');
-            document.querySelector('.catalog-section').scrollIntoView({ behavior: 'smooth' });
-        });
-    }
-});
+if (startMissionBtn) {
+    startMissionBtn.addEventListener('click', function() {
+        const catalogSection = document.getElementById('catalog-section');
+        if (catalogSection) {
+            catalogSection.scrollIntoView({ behavior: 'smooth' });
+        }
+    });
+}
 
 // Export functions for global access
 window.showSection = showSection;
