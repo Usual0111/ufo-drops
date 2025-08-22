@@ -464,8 +464,7 @@ if (isJoined) {
     joinBtn.onclick = () => joinMission(project.id);
 }
     
-    visitBtn.onclick = () => window.open(project.website, '_blank');
-    joinBtn.onclick = () => joinMission(project.id);
+visitBtn.onclick = () => window.open(project.website, '_blank');
     
     modal.classList.add('active');
 }
