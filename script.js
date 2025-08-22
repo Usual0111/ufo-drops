@@ -33,8 +33,6 @@ const closeModal = document.getElementById('close-modal');
 const joinMissionBtn = document.getElementById('join-mission');
 const visitProjectBtn = document.getElementById('visit-project');
 const notification = document.getElementById('notification');
-const missionsContainer = document.getElementById('missions-container');
-const badgesGrid = document.getElementById('badges-grid');
 
 // Firebase functions
 async function loadProjectsFromFirestore() {
@@ -146,150 +144,6 @@ function updateUIForUser(user) {
     }
 }
 
-async function registerUser(email, password) {
-    try {
-        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-        const user = userCredential.user;
-        
-        // Send email verification
-        await user.sendEmailVerification();
-        
-        showNotification(`Registration successful! Check your email ${user.email} for verification link! 🎉`, 'success');
-    } catch (error) {
-        const errorCode = error.code;
-        console.error("Registration error:", errorCode, error.message);
-        let userMessage = "Registration failed.";
-        if (errorCode === 'auth/email-already-in-use') {
-            userMessage = "Email already in use.";
-        } else if (errorCode === 'auth/invalid-email') {
-            userMessage = "Invalid email address.";
-        } else if (errorCode === 'auth/weak-password') {
-            userMessage = "Password is too weak.";
-        }
-        showNotification(userMessage, 'error');
-    }
-}
-
-async function loginUser(email, password) {
-    try {
-        const userCredential = await auth.signInWithEmailAndPassword(email, password);
-        const user = userCredential.user;
-        showNotification(`Login successful! Welcome back, ${user.email}! 🎉`, 'success');
-    } catch (error) {
-        const errorCode = error.code;
-        console.error("Login error:", errorCode, error.message);
-        let userMessage = "Login failed.";
-        if (errorCode === 'auth/user-not-found' || errorCode === 'auth/wrong-password') {
-            userMessage = "Incorrect email or password.";
-        } else if (errorCode === 'auth/invalid-email') {
-            userMessage = "Invalid email address.";
-        }
-        showNotification(userMessage, 'error');
-    }
-}
-
-async function logoutUser() {
-    try {
-        await auth.signOut();
-        showNotification("You have been logged out.", 'info');
-    } catch (error) {
-        console.error("Logout error:", error);
-        showNotification("Logout failed.", 'error');
-    }
-}
-
-async function handleForgotPassword(e) {
-    e.preventDefault();
-    const email = document.getElementById('auth-email').value;
-    
-    if (!email) {
-        showNotification("Please enter your email address.", 'warning');
-        return;
-    }
-    
-    try {
-        await auth.sendPasswordResetEmail(email);
-        showNotification(`Password reset email sent to ${email}! Check your inbox.`, 'success');
-    } catch (error) {
-        console.error("Password reset error:", error);
-        let userMessage = "Failed to send password reset email.";
-        if (error.code === 'auth/user-not-found') {
-            userMessage = "No account found with this email.";
-        } else if (error.code === 'auth/invalid-email') {
-            userMessage = "Invalid email address.";
-        }
-        showNotification(userMessage, 'error');
-    }
-}
-
-function showAuthModal() {
-    console.log("showAuthModal called"); // <-- Добавим эту строку для отладки
-    let authModal = document.getElementById('auth-modal');
-    if (!authModal) {
-        authModal = document.createElement('div');
-        authModal.className = 'modal active';
-        authModal.id = 'auth-modal';
-        authModal.innerHTML = `
-            <div class="modal-content" style="max-width: 400px;">
-                <div class="modal-header">
-                    <h3>🔐 Authenticate</h3>
-                    <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <div id="auth-form-container">
-                        <h4 id="auth-form-title">Login</h4>
-                        <input type="email" id="auth-email" placeholder="Email" style="width:100%; padding:0.5rem; margin-bottom:0.5rem; background:rgba(255,255,255,0.1); border:2px solid rgba(255,255,255,0.2); border-radius:8px; color:#fff;">
-                        <input type="password" id="auth-password" placeholder="Password" style="width:100%; padding:0.5rem; margin-bottom:1rem; background:rgba(255,255,255,0.1); border:2px solid rgba(255,255,255,0.2); border-radius:8px; color:#fff;">
-                        <button class="primary-button" id="auth-submit-btn" style="width:100%; margin-bottom:0.5rem;">Login</button>
-                        <p style="text-align:center; margin-bottom:0.5rem;"><a href="#" id="toggle-auth-mode">Don't have an account? Register</a></p>
-                        <p style="text-align:center; margin-bottom:0.5rem;"><a href="#" id="forgot-password-link">Forgot password?</a></p>
-                    </div>
-                </div>
-            </div>
-        `;
-        document.body.appendChild(authModal);
-
-        document.getElementById('auth-submit-btn').addEventListener('click', handleAuthSubmit);
-        document.getElementById('toggle-auth-mode').addEventListener('click', toggleAuthMode);
-        document.getElementById('forgot-password-link').addEventListener('click', handleForgotPassword);
-    } else {
-        authModal.classList.add('active');
-    }
-}
-
-function toggleAuthMode(e) {
-    e.preventDefault();
-    const title = document.getElementById('auth-form-title');
-    const submitBtn = document.getElementById('auth-submit-btn');
-    const toggleLink = document.getElementById('toggle-auth-mode');
-    if (title.textContent === 'Login') {
-        title.textContent = 'Register';
-        submitBtn.textContent = 'Register';
-        toggleLink.innerHTML = 'Already have an account? Login';
-    } else {
-        title.textContent = 'Login';
-        submitBtn.textContent = 'Login';
-        toggleLink.innerHTML = "Don't have an account? Register";
-    }
-}
-
-async function handleAuthSubmit() {
-    const email = document.getElementById('auth-email').value;
-    const password = document.getElementById('auth-password').value;
-    const title = document.getElementById('auth-form-title').textContent;
-
-    if (!email || !password) {
-        showNotification("Please fill in all fields.", 'warning');
-        return;
-    }
-
-    if (title === 'Login') {
-        await loginUser(email, password);
-    } else if (title === 'Register') {
-        await registerUser(email, password);
-    }
-}
-
 // Auth state observer
 auth.onAuthStateChanged(async (user) => {
     if (user && user.emailVerified) {
@@ -308,13 +162,7 @@ auth.onAuthStateChanged(async (user) => {
 // Обновленная функция showSection с проверкой аутентификации Firebase
 function showSection(sectionId) {
     console.log("showSection called with:", sectionId); // <-- Для отладки
-    const restrictedSections = ['missions', 'learn', 'profile'];
-
-    // Проверяем аутентификацию через Firebase, а не через старый currentUser.isRegistered
-    if (!auth.currentUser && restrictedSections.includes(sectionId)) {
-        showAuthModal(); // Показываем модальное окно Firebase аутентификации
-        return;
-    }
+    const restrictedSections = [];
 
     // --- ИСПРАВЛЕНИЕ ---
     // Всегда получаем список секций прямо здесь, внутри функции
@@ -549,10 +397,6 @@ function closeMissionDetailsModal() {
 }
 
 function joinMission(projectId) {
-    if (!auth.currentUser) {
-        showAuthModal();
-        return;
-    }
     
     if (currentUser.joinedProjects.includes(projectId)) {
         showNotification('Already joined this mission!', 'warning');
@@ -568,147 +412,6 @@ function joinMission(projectId) {
     modal.classList.remove('active');
     const project = projects.find(p => p.id === projectId);
     showNotification(`Successfully joined ${project.name}!`, 'success');
-}
-
-function renderMissions() {
-    if (currentUser.joinedProjects.length === 0) {
-        missionsContainer.innerHTML = `
-            <div class="empty-state">
-                <span class="empty-icon">🛸</span>
-                <h3>No missions yet</h3>
-                <p>Start exploring drops to begin your crypto journey!</p>
-                <button class="secondary-button" onclick="showSection('home')">Explore Drops</button>
-            </div>
-        `;
-        return;
-    }
-    
-    missionsContainer.innerHTML = '';
-    
-    currentUser.joinedProjects.forEach(projectId => {
-        const project = projects.find(p => p.id === projectId);
-        if (!project) return;
-        
-        const isCompleted = currentUser.completedProjects.includes(projectId);
-        let progress = 100;
-        if (!isCompleted) {
-            if (project && project.endDate) {
-                const endDate = new Date(project.endDate);
-                const today = new Date();
-                const totalTime = endDate - new Date('2024-01-01');
-                const elapsed = today - new Date('2024-01-01');
-                progress = Math.min(95, Math.max(5, Math.floor((elapsed / totalTime) * 100)));
-            } else {
-                progress = Math.floor(Math.random() * 80) + 10;
-            }
-        }
-
-        const missionCard = document.createElement('div');
-        missionCard.className = 'mission-card';
-        missionCard.style.position = 'relative';
-        missionCard.innerHTML = `
-            <button class="remove-mission-btn" onclick="showRemoveModal('${projectId}')" title="Remove from missions">
-                <span>×</span>
-            </button>
-            <div class="mission-header">
-                <div style="display: flex; align-items: center; gap: 1rem;">
-                    <div class="project-logo" style="font-size: 2rem;">${project.logo}</div>
-                    <div>
-                        <h3>${project.name}</h3>
-                        <p style="color: rgba(255,255,255,0.7); margin: 0;">${project.description}</p>
-                    </div>
-                </div>
-                <div class="project-status ${isCompleted ? 'open' : 'upcoming'}">
-                    ${isCompleted ? '✅ Completed' : '⏳ In Progress'}
-                </div>
-            </div>
-            
-            <div class="progress-bar">
-                <div class="progress-fill" style="width: ${progress}%"></div>
-            </div>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
-                <span style="color: #00ff9f; font-weight: 600;">${progress}% Complete</span>
-                <div style="display: flex; gap: 1rem;">
-                    ${isCompleted ? 
-                        `<button class="secondary-button" onclick="markIncomplete('${projectId}')">Mark Incomplete</button>` :
-                        `<button class="primary-button" onclick="markComplete('${projectId}')">Mark Complete</button>`
-                    }
-                    <button class="secondary-button" onclick="openMissionDetailsModal('${projectId}')">View Details</button>
-                </div>
-            </div>
-        `;
-        
-        missionsContainer.appendChild(missionCard);
-    });
-}
-
-function markComplete(projectId) {
-    if (!auth.currentUser) return;
-    if (!currentUser.completedProjects.includes(projectId)) {
-        currentUser.completedProjects.push(projectId);
-        saveUserDataToFirestore();
-        updateStats();
-        checkBadges();
-        renderMissions();
-        renderProfile();
-        
-        const project = projects.find(p => p.id === projectId);
-        showNotification(`Completed ${project.name}! 🎉`, 'success');
-    }
-}
-
-function markIncomplete(projectId) {
-    if (!auth.currentUser) return;
-    currentUser.completedProjects = currentUser.completedProjects.filter(id => id !== projectId);
-    saveUserDataToFirestore();
-    updateStats();
-    renderMissions();
-    renderProfile();
-    
-    const project = projects.find(p => p.id === projectId);
-    showNotification(`Marked ${project.name} as incomplete`, 'info');
-}
-
-function removeMission(projectId) {
-    if (!auth.currentUser) return;
-    currentUser.joinedProjects = currentUser.joinedProjects.filter(id => id !== projectId);
-    currentUser.completedProjects = currentUser.completedProjects.filter(id => id !== projectId);
-    saveUserDataToFirestore();
-    updateStats();
-    renderMissions();
-    renderProjects();
-    
-    const project = projects.find(p => p.id === projectId);
-    showNotification(`Removed ${project.name} from missions`, 'info');
-}
-
-function showRemoveModal(projectId) {
-    const project = projects.find(p => p.id === projectId);
-    if (!project) return;
-    
-    const removeModal = document.createElement('div');
-    removeModal.className = 'modal active';
-    removeModal.innerHTML = `
-        <div class="modal-content" style="max-width: 400px;">
-            <div class="modal-header">
-                <h3>Remove Mission</h3>
-                <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <p>Are you sure you want to remove <strong>${project.name}</strong> from your missions?</p>
-                <div class="modal-actions" style="margin-top: 2rem;">
-                    <button class="primary-button" onclick="removeMission('${projectId}'); this.closest('.modal').remove();">
-                        Remove Project
-                    </button>
-                    <button class="secondary-button" onclick="this.closest('.modal').remove();">
-                        Cancel
-                    </button>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    document.body.appendChild(removeModal);
 }
 
 function updateStats() {
@@ -770,29 +473,6 @@ function checkBadges() {
     renderBadges();
 }
 
-function renderBadges() {
-    badgesGrid.innerHTML = '';
-    
-    badges.forEach(badge => {
-        const isEarned = currentUser.badges.includes(badge.id);
-        
-        const badgeItem = document.createElement('div');
-        badgeItem.className = `badge-item ${isEarned ? 'earned' : ''}`;
-        badgeItem.innerHTML = `
-            <span class="badge-icon">${badge.icon}</span>
-            <div class="badge-name">${badge.name}</div>
-            <div class="badge-description">${badge.description}</div>
-        `;
-        
-        badgesGrid.appendChild(badgeItem);
-    });
-}
-
-function renderProfile() {
-    updateStats();
-    renderBadges();
-}
-
 function showNotification(message, type = 'success') {
     const notificationText = document.getElementById('notification-text');
     const notificationIcon = document.querySelector('.notification-icon');
@@ -842,20 +522,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     renderProfile();
     renderBadges();
     updateStats();
-
-// Добавляем обработчик для кнопки логина
-const loginBtn = document.getElementById('login-btn');
-if (loginBtn) {
-    loginBtn.addEventListener('click', showAuthModal);
-    console.log("Event listener added to login-btn"); // Для проверки
-} else {
-    console.error("Login button not found in DOM during initialization");
-}
-    
-    const logoutBtn = document.getElementById('logout-btn');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', logoutUser);
-    }
 
     // Filter buttons
     filterBtns.forEach(btn => {
