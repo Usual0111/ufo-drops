@@ -3,35 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UFO Drops - Earn Free Crypto</title>
+    <title>FreeMoneyScanner - Earn Free Crypto</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
-<!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-
-<!-- Add Firebase Authentication -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-
-<!-- Add Cloud Firestore -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-
-<!-- TODO: Add SDKs for Firebase products that you want to use
-     https://firebase.google.com/docs/web/setup#available-libraries -->
+    
+    <!-- Firebase CDN -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    
     <script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyCMcR82zwhu8y_n7Un7BFxWsTDIogQKqRo",
-    authDomain: "ufo-drops.firebaseapp.com",
-    projectId: "ufo-drops",
-    storageBucket: "ufo-drops.firebasestorage.app",
-    messagingSenderId: "297472887464",
-    appId: "1:297472887464:web:a221daaaeb4d247024109d"
-  };
-
-  // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
-</script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCMcR82zwhu8y_n7Un7BFxWsTDIogQKqRo",
+            authDomain: "ufo-drops.firebaseapp.com",
+            projectId: "ufo-drops",
+            storageBucket: "ufo-drops.firebasestorage.app",
+            messagingSenderId: "297472887464",
+            appId: "1:297472887464:web:a221daaaeb4d247024109d"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+    </script>
 </head>
 <body>
     <!-- Background stars -->
@@ -54,7 +46,6 @@
                     <span class="nav-icon">🎓</span>
                     <span>Learn</span>
                 </a>
-                
             </div>
             <div class="nav-toggle" id="nav-toggle">
                 <span class="bar"></span>
@@ -158,7 +149,7 @@
         </section>
     </main>
 
-<!-- Project Modal -->
+    <!-- Project Modal -->
     <div class="modal" id="project-modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -175,6 +166,14 @@
                             <span class="reward-label">Potential Reward:</span>
                             <span class="reward-value" id="modal-reward">TBD</span>
                         </div>
+                        <div class="potential-reward reward-pool-info">
+                            <span class="reward-label">Reward Pool:</span>
+                            <span class="reward-value" id="modal-reward-pool">TBD</span>
+                        </div>
+                        <div class="potential-reward end-date-info">
+                            <span class="reward-label">End Date:</span>
+                            <span class="reward-value" id="modal-end-date">TBD</span>
+                        </div>
                     </div>
                 </div>
                 
@@ -186,9 +185,9 @@
                 </div>
                 
                 <div class="modal-actions">
-                    <button class="primary-button" id="join-mission">
-                        <span class="button-icon">🚀</span>
-                        Join Mission
+                    <button class="primary-button" id="mission-details-btn">
+                        <span class="button-icon">👁️</span>
+                        Mission Details
                     </button>
                     <button class="secondary-button" id="visit-project">
                         <span class="button-icon">🔗</span>
