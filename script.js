@@ -449,15 +449,17 @@ function openProjectModal(projectId) {
     const joinBtn = document.getElementById('join-mission');
     const visitBtn = document.getElementById('visit-project');
     
-    if (isJoined) {
-        joinBtn.innerHTML = '<span class="button-icon">✅</span> Already Joined';
-        joinBtn.disabled = true;
-        joinBtn.style.opacity = '0.6';
-    } else {
-        joinBtn.innerHTML = '<span class="button-icon">🚀</span> Join Mission';
-        joinBtn.disabled = false;
-        joinBtn.style.opacity = '1';
-    }
+if (isJoined) {
+    joinBtn.innerHTML = '<span class="button-icon">👁️</span> View Details';
+    joinBtn.disabled = false;
+    joinBtn.style.opacity = '1';
+    joinBtn.onclick = () => openMissionDetailsModal(project.id);
+} else {
+    joinBtn.innerHTML = '<span class="button-icon">🚀</span> Join Mission';
+    joinBtn.disabled = false;
+    joinBtn.style.opacity = '1';
+    joinBtn.onclick = () => joinMission(project.id);
+}
     
     visitBtn.onclick = () => window.open(project.website, '_blank');
     joinBtn.onclick = () => joinMission(project.id);
