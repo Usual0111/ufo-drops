@@ -41,9 +41,10 @@ async function loadProjectsFromFirestore() {
         projects = [];
         querySnapshot.forEach((doc) => {
             const projectData = doc.data();
-            if (projectData.endDate && typeof projectData.endDate.toDate === 'function') {
-                projectData.endDate = projectData.endDate.toDate().toISOString().split('T')[0];
-            }
+if (projectData.endDate) {
+    if (typeof projectData.endDate.toDate === 'function') {
+        projectData.endDate = projectData.endDate.toDate().toISOString().split('T')[0];
+    }
             projects.push({ id: doc.id, ...projectData });
         });
         console.log("Projects loaded from Firestore:", projects);
