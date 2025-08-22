@@ -453,7 +453,10 @@ if (isJoined) {
     joinBtn.innerHTML = '<span class="button-icon">👁️</span> View Details';
     joinBtn.disabled = false;
     joinBtn.style.opacity = '1';
-    joinBtn.onclick = () => openMissionDetailsModal(project.id);
+    joinBtn.onclick = () => { 
+    closeProjectModal(); 
+    openMissionDetailsModal(project.id); 
+};
 } else {
     joinBtn.innerHTML = '<span class="button-icon">🚀</span> Join Mission';
     joinBtn.disabled = false;
@@ -476,7 +479,7 @@ function closeProjectModal() {
 
 function openMissionDetailsModal(projectId) {
     console.log("openMissionDetailsModal called with:", projectId, typeof projectId);
-    const project = projects.find(p => p.id === projectId || p.id === parseInt(projectId));
+    const project = projects.find(p => p.id == projectId);
     console.log("Found project:", project);
     if (!project) return;
     
