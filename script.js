@@ -1184,3 +1184,4 @@ function showWelcomeMessage() {
 
 // Initialize welcome message
 showWelcomeMessage();
+});
