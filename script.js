@@ -370,7 +370,7 @@ function renderProjects(filter = 'all') {
             </div>
             <p class="project-description">${project.description}</p>
             <div class="project-actions">
-                <button class="primary-button" onclick="openProjectModal('${project.id}')">
+                <button class="primary-button" onclick="openProjectModal(${project.id})">
                     <span class="button-icon">${isJoined ? '👁️' : '🚀'}</span>
                     ${isJoined ? 'View Details' : 'Join Drop'}
                 </button>
