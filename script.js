@@ -1,28 +1,9 @@
 // Global state
-let currentUser = {
-    uid: null, // Firebase UID
-    email: null, // User's email
-    displayName: 'Alien Explorer',
-    level: 1,
-    joinedProjects: [],
-    completedProjects: [],
-    badges: []
-};
-let projects = []; // Будет заполняться из Firestore
-let badges = [
-    { id: 'first_mission', name: 'First Mission', icon: '🚀', description: 'Complete your first drop', requirement: 1, type: 'joined' },
-    { id: 'depin_master', name: 'DePIN Master', icon: '🌐', description: 'Complete 3 DePIN projects', requirement: 3, type: 'category', category: 'depin' },
-    { id: 'completionist', name: 'Completionist', icon: '🏆', description: 'Complete 5 drops', requirement: 5, type: 'completed' },
-    { id: 'alien_hunter', name: 'Alien Hunter', icon: '👽', description: 'Completed 3 missions', requirement: 3, type: 'completed' },
-    { id: 'drop_lord', name: 'Drop Lord', icon: '👑', description: 'Completed 10 missions', requirement: 10, type: 'completed' },
-    { id: 'early_adopter', name: 'Early Adopter', icon: '⭐', description: 'Joined 5 missions', requirement: 5, type: 'joined' },
-    { id: 'depin_expert', name: 'DePIN Expert', icon: '🌐', description: 'Completed 5 DePIN projects', requirement: 5, type: 'category', category: 'depin' }
-];
+let projects = [];
 
 // DOM Elements
 const navToggle = document.getElementById('nav-toggle');
 const navMenu = document.getElementById('nav-menu');
-// Выбираем ссылки навигации внутри меню, у которых есть атрибут data-section
 const navLinks = document.querySelectorAll('#nav-menu a.nav-link[data-section]');
 const sections = document.querySelectorAll('.section');
 const projectsGrid = document.getElementById('projects-grid');
@@ -30,7 +11,7 @@ const filterBtns = document.querySelectorAll('.filter-btn');
 const startMissionBtn = document.getElementById('start-mission');
 const modal = document.getElementById('project-modal');
 const closeModal = document.getElementById('close-modal');
-const joinMissionBtn = document.getElementById('join-mission');
+const missionDetailsBtn = document.getElementById('mission-details-btn');
 const visitProjectBtn = document.getElementById('visit-project');
 const notification = document.getElementById('notification');
 
@@ -41,10 +22,11 @@ async function loadProjectsFromFirestore() {
         projects = [];
         querySnapshot.forEach((doc) => {
             const projectData = doc.data();
-if (projectData.endDate) {
-    if (typeof projectData.endDate.toDate === 'function') {
-        projectData.endDate = projectData.endDate.toDate().toISOString().split('T')[0];
-    }
+            if (projectData.endDate) {
+                if (typeof projectData.endDate.toDate === 'function') {
+                    projectData.endDate = projectData.endDate.toDate().toISOString().split('T')[0];
+                }
+            }
             projects.push({ id: doc.id, ...projectData });
         });
         console.log("Projects loaded from Firestore:", projects);
@@ -55,138 +37,22 @@ if (projectData.endDate) {
     }
 }
 
-async function loadUserDataFromFirestore(user) {
-    if (!user) return;
-    try {
-        const doc = await db.collection('users').doc(user.uid).get();
-        if (doc.exists) {
-            const userData = doc.data();
-            currentUser = {
-                uid: user.uid,
-                email: user.email,
-                displayName: userData.displayName || user.displayName || 'Alien Explorer',
-                level: userData.level || 1,
-                joinedProjects: userData.joinedProjects || [],
-                completedProjects: userData.completedProjects || [],
-                badges: userData.badges || []
-            };
-        } else {
-            currentUser = {
-                uid: user.uid,
-                email: user.email,
-                displayName: user.displayName || 'Alien Explorer',
-                level: 1,
-                joinedProjects: [],
-                completedProjects: [],
-                badges: []
-            };
-            await db.collection('users').doc(user.uid).set(currentUser);
-        }
-        console.log("User data loaded from Firestore:", currentUser);
-        updateUIForUser(currentUser);
-        renderMissions();
-        renderProfile();
-        updateStats();
-} catch (error) {
-    console.error("Error loading user data from Firestore:", error);
-    // Удаляем показ ошибки для неавторизованных пользователей
-    if (error.code !== 'permission-denied') {
-        showNotification("Failed to load user data.", 'error');
-    }
-}
-
-async function saveUserDataToFirestore() {
-    if (!currentUser.uid) return;
-    try {
-        const userDataToSave = {
-            displayName: currentUser.displayName,
-            level: currentUser.level,
-            joinedProjects: currentUser.joinedProjects,
-            completedProjects: currentUser.completedProjects,
-            badges: currentUser.badges
-        };
-        await db.collection('users').doc(currentUser.uid).set(userDataToSave, { merge: true });
-        console.log("User data saved to Firestore");
-    } catch (error) {
-        console.error("Error saving user data to Firestore:", error);
-        showNotification("Failed to save user data.", 'error');
-    }
-}
-
-function updateUIForUser(user) {
-    const loginBtn = document.getElementById('login-btn');
-    const logoutBtn = document.getElementById('logout-btn');
-    const profileLink = document.querySelector('.nav-link[data-section="profile"]');
-
-    if (user && user.uid) {
-        if (loginBtn) loginBtn.style.display = 'none';
-        if (logoutBtn) {
-            logoutBtn.style.display = 'block';
-            logoutBtn.textContent = `Logout (${user.email})`;
-        }
-        if (profileLink) profileLink.style.display = 'flex';
-    } else {
-        if (loginBtn) loginBtn.style.display = 'block';
-        if (logoutBtn) logoutBtn.style.display = 'none';
-        if (profileLink) profileLink.style.display = 'none';
-
-        currentUser = {
-            uid: null,
-            email: null,
-            displayName: 'Alien Explorer',
-            level: 1,
-            joinedProjects: [],
-            completedProjects: [],
-            badges: []
-        };
-        renderMissions();
-        renderProfile();
-        updateStats();
-    }
-}
-
-// Auth state observer
-auth.onAuthStateChanged(async (user) => {
-    if (user && user.emailVerified) {
-        console.log("User signed in:", user);
-        await loadUserDataFromFirestore(user);
-    } else if (user && !user.emailVerified) {
-        showNotification("Please verify your email address.", 'warning');
-        updateUIForUser(null);
-    } else {
-        console.log("User signed out");
-        updateUIForUser(null);
-    }
-});
-
 // Navigation functionality
-// Обновленная функция showSection с проверкой аутентификации Firebase
 function showSection(sectionId) {
-    console.log("showSection called with:", sectionId); // <-- Для отладки
-    const restrictedSections = [];
-
-    // --- ИСПРАВЛЕНИЕ ---
-    // Всегда получаем список секций прямо здесь, внутри функции
+    console.log("showSection called with:", sectionId);
+    
     const sections = document.querySelectorAll('.section');
-    // Проверяем, нашлись ли секции
     if (sections) {
         sections.forEach(section => {
             section.classList.remove('active');
         });
-    } else {
-        console.warn("Sections NodeList is not found in the DOM.");
     }
-    // --- КОНЕЦ ИСПРАВЛЕНИЯ ---
-
-    // Находим целевую секцию по ID
+    
     const targetSection = document.getElementById(sectionId);
-    // Проверяем, существует ли элемент с таким ID
     if (targetSection) {
         targetSection.classList.add('active');
     } else {
         console.error(`Section with id '${sectionId}' not found.`);
-        // Или показать уведомление об ошибке
-        // showNotification(`Section '${sectionId}' not found.`, 'error');
     }
 }
 
@@ -200,10 +66,18 @@ function renderProjects(filter = 'all') {
     
     projectsGrid.innerHTML = '';
     
+    if (filteredProjects.length === 0) {
+        projectsGrid.innerHTML = `
+            <div style="text-align: center; padding: 2rem; color: rgba(255,255,255,0.6); grid-column: 1/-1;">
+                <span style="font-size: 3rem; display: block; margin-bottom: 1rem;">📂</span>
+                <h3>No projects found</h3>
+                <p>Try selecting a different category</p>
+            </div>
+        `;
+        return;
+    }
+    
     filteredProjects.forEach(project => {
-        const isJoined = currentUser.joinedProjects.includes(project.id);
-        const isCompleted = currentUser.completedProjects.includes(project.id);
-        
         const projectCard = document.createElement('div');
         projectCard.className = 'project-card';
         projectCard.innerHTML = `
@@ -219,20 +93,12 @@ function renderProjects(filter = 'all') {
             </div>
             <p class="project-description">${project.description}</p>
             <div class="project-actions">
-                <button class="primary-button" onclick="openProjectModal(${project.id})">
-                    <span class="button-icon">${isJoined ? '👁️' : '🚀'}</span>
-                    ${isJoined ? 'View Details' : 'Join Drop'}
+                <button class="primary-button" onclick="openProjectModal('${project.id}')">
+                    <span class="button-icon">🚀</span>
+                    View Details
                 </button>
             </div>
         `;
-
-        
-        if (isCompleted) {
-            projectCard.style.opacity = '0.7';
-            projectCard.style.border = '2px solid #00ff9f';
-        } else if (isJoined) {
-            projectCard.style.border = '2px solid #0d6efd';
-        }
         
         projectsGrid.appendChild(projectCard);
     });
@@ -248,47 +114,28 @@ function getStatusText(status) {
 }
 
 function openProjectModal(projectId) {
-    console.log("DEBUG: openProjectModal called with ID:", projectId); // <-- Добавить эту строку
-    const project = projects.find(p => p.id == projectId);
-    console.log("DEBUG: Found project object:", project); // <-- Добавить эту строку
+    console.log("openProjectModal called with ID:", projectId);
+    const project = projects.find(p => p.id === projectId);
+    console.log("Found project object:", project);
+    
     if (!project) {
-        console.error("DEBUG: Project not found for ID:", projectId);
+        console.error("Project not found for ID:", projectId);
         return;
     }
-    if (!project) return;
     
-    const isJoined = currentUser.joinedProjects.includes(project.id);
-    
+    // Populate modal data
     document.getElementById('modal-title').textContent = project.name;
     document.getElementById('modal-logo').textContent = project.logo;
     document.getElementById('modal-description').textContent = project.description;
-    document.getElementById('modal-reward').textContent = project.potentialReward;
+    document.getElementById('modal-reward').textContent = project.potentialReward || 'TBD';
+    document.getElementById('modal-reward-pool').textContent = project.rewardPool || 'TBD';
+    document.getElementById('modal-end-date').textContent = formatDate(project.endDate) || 'TBD';
     
-    const detailsContainer = document.querySelector('.project-details');
-    
-    if (!detailsContainer.querySelector('.reward-pool-info')) {
-        const rewardPoolEl = document.createElement('div');
-        rewardPoolEl.className = 'potential-reward reward-pool-info';
-        rewardPoolEl.innerHTML = `
-            <span class="reward-label">Reward Pool:</span>
-            <span class="reward-value">${project.rewardPool}</span>
-        `;
-        detailsContainer.appendChild(rewardPoolEl);
-    }
-
-    if (!detailsContainer.querySelector('.end-date-info')) {
-        const endDateEl = document.createElement('div');
-        endDateEl.className = 'potential-reward end-date-info';
-        endDateEl.innerHTML = `
-            <span class="reward-label">End Date:</span>
-            <span class="reward-value">${formatDate(project.endDate)}</span>
-        `;
-        detailsContainer.appendChild(endDateEl);
-    }
-    
+    // Populate tags
     const tagsContainer = document.getElementById('modal-tags');
     tagsContainer.innerHTML = project.tags.map(tag => `<span class="project-tag">${tag}</span>`).join('');
     
+    // Populate checklist
     const checklistContainer = document.getElementById('modal-checklist');
     checklistContainer.innerHTML = project.steps.map((step, index) => `
         <div class="checklist-item">
@@ -297,25 +144,16 @@ function openProjectModal(projectId) {
         </div>
     `).join('');
     
-    const joinBtn = document.getElementById('join-mission');
+    // Set button handlers
+    const missionDetailsBtn = document.getElementById('mission-details-btn');
     const visitBtn = document.getElementById('visit-project');
     
-if (isJoined) {
-    joinBtn.innerHTML = '<span class="button-icon">👁️</span> View Details';
-    joinBtn.disabled = false;
-    joinBtn.style.opacity = '1';
-    joinBtn.onclick = () => { 
-    closeProjectModal(); 
-    openMissionDetailsModal(project.id); 
-};
-} else {
-    joinBtn.innerHTML = '<span class="button-icon">🚀</span> Join Mission';
-    joinBtn.disabled = false;
-    joinBtn.style.opacity = '1';
-    joinBtn.onclick = () => joinMission(project.id);
-}
+    missionDetailsBtn.onclick = () => {
+        closeProjectModal();
+        openMissionDetailsModal(project.id);
+    };
     
-visitBtn.onclick = () => window.open(project.website, '_blank');
+    visitBtn.onclick = () => window.open(project.website, '_blank');
     
     modal.classList.add('active');
 }
@@ -328,9 +166,10 @@ function closeProjectModal() {
 }
 
 function openMissionDetailsModal(projectId) {
-    console.log("openMissionDetailsModal called with:", projectId, typeof projectId);
-    const project = projects.find(p => p.id == projectId);
+    console.log("openMissionDetailsModal called with:", projectId);
+    const project = projects.find(p => p.id === projectId);
     console.log("Found project:", project);
+    
     if (!project) return;
     
     const modal = document.getElementById('mission-details-modal');
@@ -384,7 +223,6 @@ function openMissionDetailsModal(projectId) {
         </a>`
     ).join('');
     
-    // Правильно открываем модальное окно
     modal.classList.add('active');
     console.log("Modal opened, classes:", modal.className);
 }
@@ -395,83 +233,6 @@ function closeMissionDetailsModal() {
         modal.classList.remove('active');
         console.log("Modal closed");
     }
-}
-
-function joinMission(projectId) {
-    
-    if (currentUser.joinedProjects.includes(projectId)) {
-        showNotification('Already joined this mission!', 'warning');
-        return;
-    }
-    
-    currentUser.joinedProjects.push(projectId);
-    saveUserDataToFirestore();
-    updateStats();
-    checkBadges();
-    renderMissions();
-    renderProjects();
-    modal.classList.remove('active');
-    const project = projects.find(p => p.id === projectId);
-    showNotification(`Successfully joined ${project.name}!`, 'success');
-}
-
-function updateStats() {
-    document.getElementById('active-count').textContent = currentUser.joinedProjects.length - currentUser.completedProjects.length;
-    document.getElementById('completed-count').textContent = currentUser.completedProjects.length;
-    document.getElementById('total-projects').textContent = currentUser.joinedProjects.length;
-    document.getElementById('completed-projects').textContent = currentUser.completedProjects.length;
-    
-    const potentialValue = currentUser.completedProjects.length * 150;
-    document.getElementById('potential-rewards').textContent = `$${potentialValue}`;
-    
-    const level = Math.floor(currentUser.completedProjects.length / 3) + 1;
-    currentUser.level = level;
-    
-    const levelText = getLevelText(level);
-    document.getElementById('user-level').textContent = `Level ${level} - ${levelText}`;
-}
-
-function getLevelText(level) {
-    if (level === 1) return 'Newbie';
-    if (level === 2) return 'Explorer';
-    if (level === 3) return 'Hunter';
-    if (level === 4) return 'Expert';
-    if (level >= 5) return 'Master';
-    return 'Alien';
-}
-
-function checkBadges() {
-    if (!auth.currentUser) return;
-    
-    badges.forEach(badge => {
-        if (currentUser.badges.includes(badge.id)) return;
-        
-        let earned = false;
-        
-        switch(badge.type) {
-            case 'joined':
-                earned = currentUser.joinedProjects.length >= badge.requirement;
-                break;
-            case 'completed':
-                earned = currentUser.completedProjects.length >= badge.requirement;
-                break;
-            case 'category':
-                const categoryProjects = currentUser.completedProjects.filter(id => {
-                    const project = projects.find(p => p.id === id);
-                    return project && project.category === badge.category;
-                });
-                earned = categoryProjects.length >= badge.requirement;
-                break;
-        }
-        
-        if (earned) {
-            currentUser.badges.push(badge.id);
-            showNotification(`New badge earned: ${badge.name}! 🏆`, 'success');
-        }
-    });
-    
-    saveUserDataToFirestore();
-    renderBadges();
 }
 
 function showNotification(message, type = 'success') {
@@ -512,121 +273,10 @@ function showNotification(message, type = 'success') {
 }
 
 function formatDate(dateString) {
+    if (!dateString) return 'TBD';
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(dateString).toLocaleDateString(undefined, options);
 }
-
-// Initialize app
-document.addEventListener('DOMContentLoaded', async function() {
-    await loadProjectsFromFirestore();
-    renderMissions();
-    renderProfile();
-    renderBadges();
-    updateStats();
-
-    // Filter buttons
-    filterBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-            filterBtns.forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            const filter = this.getAttribute('data-filter');
-            renderProjects(filter);
-        });
-    });
-
-// Modal close handlers - ИСПРАВЛЕННАЯ ВЕРСИЯ
-if (closeModal) {
-    closeModal.addEventListener('click', function(e) {
-        e.preventDefault();
-        closeProjectModal();
-    });
-}
-
-// Обработчик для закрытия mission details modal
-const closeMissionModalBtn = document.getElementById('close-mission-modal');
-if (closeMissionModalBtn) {
-    closeMissionModalBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        closeMissionDetailsModal();
-    });
-}
-
-// Обработчик клика по фону для обоих модалов
-if (modal) {
-    modal.addEventListener('click', function(e) {
-        if (e.target === modal) {
-            closeProjectModal();
-        }
-    });
-}
-
-const missionDetailsModal = document.getElementById('mission-details-modal');
-if (missionDetailsModal) {
-    missionDetailsModal.addEventListener('click', function(e) {
-        if (e.target === missionDetailsModal) {
-            closeMissionDetailsModal();
-        }
-    });
-}
-
-    // Обработчик для основного проект модала
-    if (modal) {
-        modal.addEventListener('click', function(e) {
-            if (e.target === modal) {
-                closeProjectModal();
-            }
-        });
-    }
-
-    // Navigation
-    if (navToggle && navMenu) {
-        navToggle.addEventListener('click', function() {
-            navMenu.classList.toggle('active');
-            navToggle.classList.toggle('active');
-        });
-    }
-
-    navLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            const targetSection = this.getAttribute('data-section');
-            showSection(targetSection);
-
-            // Close mobile menu
-            if (navMenu && navToggle) {
-                navMenu.classList.remove('active');
-                navToggle.classList.remove('active');
-            }
-
-            // Update active nav link
-            navLinks.forEach(l => l.classList.remove('active'));
-            this.classList.add('active');
-        });
-    });
-
-    // Start mission button
-if (startMissionBtn) {
-    startMissionBtn.addEventListener('click', function() {
-        const catalogSection = document.getElementById('catalog-section');
-        if (catalogSection) {
-            catalogSection.scrollIntoView({ behavior: 'smooth' });
-        }
-    });
-}
-
-// Export functions for global access
-window.showSection = showSection;
-window.openProjectModal = openProjectModal;
-window.joinMission = joinMission;
-window.markComplete = markComplete;
-window.markIncomplete = markIncomplete;
-window.removeMission = removeMission;
-window.showRemoveModal = showRemoveModal;
-window.showAuthModal = showAuthModal;
-window.closeProjectModal = closeProjectModal;
-window.openMissionDetailsModal = openMissionDetailsModal;
-window.closeMissionDetailsModal = closeMissionDetailsModal;
-window.formatDate = formatDate;
 
 // Search functionality
 function addSearchFunctionality() {
@@ -690,9 +340,6 @@ function renderFilteredProjects(filteredProjects) {
     }
     
     filteredProjects.forEach(project => {
-        const isJoined = currentUser.joinedProjects.includes(project.id);
-        const isCompleted = currentUser.completedProjects.includes(project.id);
-        
         const projectCard = document.createElement('div');
         projectCard.className = 'project-card';
         projectCard.innerHTML = `
@@ -708,45 +355,129 @@ function renderFilteredProjects(filteredProjects) {
             </div>
             <p class="project-description">${project.description}</p>
             <div class="project-actions">
-                <button class="primary-button" onclick="openProjectModal(${project.id})">
-                    <span class="button-icon">${isJoined ? '👁️' : '🚀'}</span>
-                    ${isJoined ? 'View Details' : 'Join Drop'}
+                <button class="primary-button" onclick="openProjectModal('${project.id}')">
+                    <span class="button-icon">🚀</span>
+                    View Details
                 </button>
             </div>
         `;
-        
-        if (isCompleted) {
-            projectCard.style.opacity = '0.7';
-            projectCard.style.border = '2px solid #00ff9f';
-        } else if (isJoined) {
-            projectCard.style.border = '2px solid #0d6efd';
-        }
         
         projectsGrid.appendChild(projectCard);
     });
 }
 
-// Initialize search functionality after DOM load
-setTimeout(() => {
-    addSearchFunctionality();
-}, 1000);
+// Initialize app
+document.addEventListener('DOMContentLoaded', async function() {
+    await loadProjectsFromFirestore();
 
-// Daily drop alert simulation
-function showDailyDropAlert() {
-    if (projects.length > 0) {
-        const randomProject = projects[Math.floor(Math.random() * projects.length)];
-        showNotification(`🚨 Daily Drop Alert: Check out ${randomProject.name}!`, 'info');
+    // Filter buttons
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            filterBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            const filter = this.getAttribute('data-filter');
+            renderProjects(filter);
+        });
+    });
+
+    // Modal close handlers
+    if (closeModal) {
+        closeModal.addEventListener('click', function(e) {
+            e.preventDefault();
+            closeProjectModal();
+        });
     }
-}
 
-// Simulate daily alerts (every 30 seconds for demo)
-setInterval(showDailyDropAlert, 30000);
+    // Mission details modal close handler
+    const closeMissionModalBtn = document.getElementById('close-mission-modal');
+    if (closeMissionModalBtn) {
+        closeMissionModalBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            closeMissionDetailsModal();
+        });
+    }
+
+    // Modal background click handlers
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeProjectModal();
+            }
+        });
+    }
+
+    const missionDetailsModal = document.getElementById('mission-details-modal');
+    if (missionDetailsModal) {
+        missionDetailsModal.addEventListener('click', function(e) {
+            if (e.target === missionDetailsModal) {
+                closeMissionDetailsModal();
+            }
+        });
+    }
+
+    // Navigation
+    if (navToggle && navMenu) {
+        navToggle.addEventListener('click', function() {
+            navMenu.classList.toggle('active');
+            navToggle.classList.toggle('active');
+        });
+    }
+
+    navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetSection = this.getAttribute('data-section');
+            showSection(targetSection);
+
+            // Close mobile menu
+            if (navMenu && navToggle) {
+                navMenu.classList.remove('active');
+                navToggle.classList.remove('active');
+            }
+
+            // Update active nav link
+            navLinks.forEach(l => l.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+
+    // Start mission button
+    if (startMissionBtn) {
+        startMissionBtn.addEventListener('click', function() {
+            const catalogSection = document.querySelector('.catalog-section');
+            if (catalogSection) {
+                catalogSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    }
+
+    // Initialize search functionality
+    setTimeout(() => {
+        addSearchFunctionality();
+    }, 1000);
+});
+
+// Export functions for global access
+window.showSection = showSection;
+window.openProjectModal = openProjectModal;
+window.closeProjectModal = closeProjectModal;
+window.openMissionDetailsModal = openMissionDetailsModal;
+window.closeMissionDetailsModal = closeMissionDetailsModal;
+window.formatDate = formatDate;
 
 // Keyboard shortcuts
 document.addEventListener('keydown', function(e) {
     // ESC to close modal
-    if (e.key === 'Escape' && modal && modal.classList.contains('active')) {
-        modal.classList.remove('active');
+    if (e.key === 'Escape') {
+        const projectModal = document.getElementById('project-modal');
+        const missionModal = document.getElementById('mission-details-modal');
+        
+        if (projectModal && projectModal.classList.contains('active')) {
+            closeProjectModal();
+        }
+        if (missionModal && missionModal.classList.contains('active')) {
+            closeMissionDetailsModal();
+        }
     }
     
     // Ctrl/Cmd + K to focus search
@@ -780,75 +511,3 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
-
-// Service worker registration for PWA capabilities
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function() {
-        navigator.serviceWorker.register('/sw.js')
-            .then(function(registration) {
-                console.log('ServiceWorker registration successful');
-            })
-            .catch(function(err) {
-                console.log('ServiceWorker registration failed');
-            });
-    });
-}
-
-// Add to home screen prompt
-let deferredPrompt;
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    
-    const installBtn = document.createElement('button');
-    installBtn.textContent = '📱 Install App';
-    installBtn.className = 'install-btn';
-    installBtn.style.cssText = `
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        background: linear-gradient(45deg, #00ff9f, #0d6efd);
-        border: none;
-        color: #000;
-        padding: 1rem;
-        border-radius: 50px;
-        font-family: 'Orbitron', monospace;
-        font-weight: 600;
-        cursor: pointer;
-        z-index: 1000;
-        box-shadow: 0 5px 15px rgba(0, 255, 159, 0.3);
-        transition: all 0.3s ease;
-    `;
-    
-    installBtn.addEventListener('click', async () => {
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            deferredPrompt = null;
-            installBtn.remove();
-        }
-    });
-    
-    document.body.appendChild(installBtn);
-    
-    setTimeout(() => {
-        installBtn.style.transform = 'scale(1.1)';
-        setTimeout(() => {
-            installBtn.style.transform = 'scale(1)';
-        }, 200);
-    }, 1000);
-});
-
-// Welcome message for new users
-function showWelcomeMessage() {
-    if (!localStorage.getItem('ufoDropsWelcome')) {
-        setTimeout(() => {
-            showNotification('Welcome to UFO Drops! 🛸 Start your crypto journey!', 'info');
-            localStorage.setItem('ufoDropsWelcome', 'true');
-        }, 2000);
-    }
-}
-
-// Initialize welcome message
-showWelcomeMessage();
-});
