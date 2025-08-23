@@ -147,6 +147,156 @@ async saveProjects() {
         this.showNotification("Failed to save projects.", 'error');
     }
 }
+
+    async editMissionDetails(projectId) {
+    const project = this.projects.find(p => p.id == projectId);
+    if (!project) return;
+    
+    try {
+        // Загружаем данные mission details из Firebase
+        const doc = await db.collection('missionDetails').doc(projectId.trim()).get();
+        let missionData = {};
+        
+        if (doc.exists) {
+            missionData = doc.data();
+        }
+        
+        // Открываем модальное окно для редактирования mission details
+        this.openMissionDetailsModal(project, missionData);
+        
+    } catch (error) {
+        console.error("Error loading mission details:", error);
+        this.showNotification("Failed to load mission details.", 'error');
+    }
+}
+
+    openMissionDetailsModal(project, missionData) {
+    // Создаем HTML для модального окна mission details
+    const modalHTML = `
+        <div class="modal" id="mission-details-edit-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Edit Mission Details - ${project.name}</h3>
+                    <button class="close-btn" onclick="adminManager.closeMissionDetailsModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="mission-details-form">
+                        <div class="form-group">
+                            <label>Daily Tasks (one per line):</label>
+                            <textarea id="daily-tasks" rows="4" placeholder="Launch node or app&#10;Share internet connection">${(missionData.dailyTasks || []).join('\\n')}</textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Boost Tips (one per line):</label>
+                            <textarea id="boost-tips" rows="4" placeholder="Use project from different devices&#10;Complete daily tasks">${(missionData.boostTips || []).join('\\n')}</textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Links:</label>
+                            <div id="links-container">
+                                ${this.renderLinksInputs(missionData.links || [])}
+                            </div>
+                            <button type="button" onclick="adminManager.addLinkInput()">+ Add Link</button>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="primary-btn">💾 Save Mission Details</button>
+                            <button type="button" onclick="adminManager.closeMissionDetailsModal()" class="secondary-btn">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Добавляем модальное окно в DOM если его нет
+    if (!document.getElementById('mission-details-edit-modal')) {
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+    } else {
+        document.getElementById('mission-details-edit-modal').outerHTML = modalHTML;
+    }
+    
+    // Показываем модальное окно
+    document.getElementById('mission-details-edit-modal').style.display = 'flex';
+    
+    // Привязываем обработчик формы
+    document.getElementById('mission-details-form').onsubmit = (e) => this.saveMissionDetails(e, project.id);
+}
+
+    renderLinksInputs(links) {
+    if (!links || links.length === 0) {
+        return `
+            <div class="link-input-group">
+                <input type="text" placeholder="Icon (🌐)" class="link-icon">
+                <input type="text" placeholder="Text (Website)" class="link-text">
+                <input type="text" placeholder="URL" class="link-url">
+                <button type="button" onclick="this.parentNode.remove()">Remove</button>
+            </div>
+        `;
+    }
+    
+    return links.map(link => `
+        <div class="link-input-group">
+            <input type="text" placeholder="Icon (🌐)" class="link-icon" value="${link.icon || ''}">
+            <input type="text" placeholder="Text (Website)" class="link-text" value="${link.text || ''}">
+            <input type="text" placeholder="URL" class="link-url" value="${link.url || ''}">
+            <button type="button" onclick="this.parentNode.remove()">Remove</button>
+        </div>
+    `).join('');
+}
+
+addLinkInput() {
+    const container = document.getElementById('links-container');
+    container.insertAdjacentHTML('beforeend', `
+        <div class="link-input-group">
+            <input type="text" placeholder="Icon (🌐)" class="link-icon">
+            <input type="text" placeholder="Text (Website)" class="link-text">
+            <input type="text" placeholder="URL" class="link-url">
+            <button type="button" onclick="this.parentNode.remove()">Remove</button>
+        </div>
+    `);
+}
+
+closeMissionDetailsModal() {
+    const modal = document.getElementById('mission-details-edit-modal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+async saveMissionDetails(e, projectId) {
+    e.preventDefault();
+    
+    const dailyTasks = document.getElementById('daily-tasks').value
+        .split('\\n')
+        .map(task => task.trim())
+        .filter(task => task);
+    
+    const boostTips = document.getElementById('boost-tips').value
+        .split('\\n')
+        .map(tip => tip.trim())
+        .filter(tip => tip);
+    
+    const linkGroups = document.querySelectorAll('.link-input-group');
+    const links = Array.from(linkGroups).map(group => ({
+        icon: group.querySelector('.link-icon').value.trim(),
+        text: group.querySelector('.link-text').value.trim(),
+        url: group.querySelector('.link-url').value.trim()
+    })).filter(link => link.icon && link.text && link.url);
+    
+    const missionData = { dailyTasks, boostTips, links };
+    
+    try {
+        await db.collection('missionDetails').doc(projectId.trim()).set(missionData);
+        this.showNotification('Mission details saved successfully!', 'success');
+        this.closeMissionDetailsModal();
+    } catch (error) {
+        console.error("Error saving mission details:", error);
+        this.showNotification('Failed to save mission details!', 'error');
+    }
+}
+
+    
     
     getDefaultProjects() {
         return [
@@ -334,6 +484,9 @@ row.innerHTML = `
             <button class="action-btn edit-btn" onclick="adminManager.editProject('${project.id}')" title="Edit">
                 ✏️
             </button>
+            <button class="action-btn mission-btn" onclick="adminManager.editMissionDetails('${project.id}')" title="Edit Mission Details">
+    ℹ️
+</button>
             <button class="action-btn delete-btn" onclick="adminManager.deleteProject('${project.id}')" title="Delete">
                 🗑️
             </button>
