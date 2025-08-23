@@ -80,6 +80,7 @@ if (missionData.boostTips) {
         `<li>🎯 ${tip}</li>`
     ).join('');
 }
+    }
 
 // Navigation functionality
 function showSection(sectionId) {
