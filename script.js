@@ -43,15 +43,9 @@ async function loadMissionDetailsFromFirestore(projectId, project) {
         if (doc.exists) {
             const missionData = doc.data();
             populateMissionDetailsModal(project, missionData);
-        } else {
-            // Fallback to default data if no mission details found
-            const defaultData = {
-                dailyTasks: ['Launch node or app', 'Share internet through connection'],
-                boostTips: ['Use project from different devices', 'Complete daily tasks'],
-                links: [{icon: '🌐', text: 'Website', url: project.website}]
-            };
-            populateMissionDetailsModal(project, defaultData);
-        }
+} else {
+    console.log("No mission details found for project:", projectId);
+}
     } catch (error) {
         console.error("Error loading mission details:", error);
         showNotification("Failed to load mission details.", 'error');
@@ -59,13 +53,17 @@ async function loadMissionDetailsFromFirestore(projectId, project) {
 }
 
 function populateMissionDetailsModal(project, missionData) {
-    // Daily tasks
+    
+// Daily tasks
+if (missionData.dailyTasks) {
     const dailyTasksContainer = document.getElementById('mission-daily-tasks');
     dailyTasksContainer.innerHTML = missionData.dailyTasks.map(task => 
         `<div class="daily-task">✅ ${task}</div>`
     ).join('');
+}
     
-    // Links
+// Links
+if (missionData.links) {
     const linksContainer = document.getElementById('mission-links');
     linksContainer.innerHTML = missionData.links.map(link => 
         `<a href="${link.url}" target="_blank" class="project-link-btn">
@@ -76,8 +74,8 @@ function populateMissionDetailsModal(project, missionData) {
 }
 
 // Boost tips
-const boostTipsContainer = document.getElementById('mission-boost-tips');
-if (boostTipsContainer && missionData.boostTips) {
+if (missionData.boostTips) {
+    const boostTipsContainer = document.getElementById('mission-boost-tips');
     boostTipsContainer.innerHTML = missionData.boostTips.map(tip => 
         `<li>🎯 ${tip}</li>`
     ).join('');
