@@ -41,7 +41,7 @@ async function loadMissionDetailsFromFirestore(projectId, project) {
     console.log("Exact projectId:", JSON.stringify(projectId));
 console.log("ProjectId length:", projectId.length);
     try {
-        const doc = await db.collection('missionDetails').doc(projectId).get();
+        const doc = await db.collection('missionDetails').doc(projectId.trim()).get();
         if (doc.exists) {
             const missionData = doc.data();
             populateMissionDetailsModal(project, missionData);
