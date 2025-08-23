@@ -37,6 +37,46 @@ async function loadProjectsFromFirestore() {
     }
 }
 
+async function loadMissionDetailsFromFirestore(projectId, project) {
+    try {
+        const doc = await db.collection('missionDetails').doc(projectId).get();
+        if (doc.exists) {
+            const missionData = doc.data();
+            populateMissionDetailsModal(project, missionData);
+        } else {
+            // Fallback to default data if no mission details found
+            const defaultData = {
+                dailyTasks: ['Launch node or app', 'Share internet through connection'],
+                boostTips: ['Use project from different devices', 'Complete daily tasks'],
+                links: [{icon: '🌐', text: 'Website', url: project.website}]
+            };
+            populateMissionDetailsModal(project, defaultData);
+        }
+    } catch (error) {
+        console.error("Error loading mission details:", error);
+        showNotification("Failed to load mission details.", 'error');
+    }
+}
+
+function populateMissionDetailsModal(project, missionData) {
+    // Daily tasks
+    const dailyTasksContainer = document.getElementById('mission-daily-tasks');
+    dailyTasksContainer.innerHTML = missionData.dailyTasks.map(task => 
+        `<div class="daily-task">✅ ${task}</div>`
+    ).join('');
+    
+    // Links
+    const linksContainer = document.getElementById('mission-links');
+    linksContainer.innerHTML = missionData.links.map(link => 
+        `<a href="${link.url}" target="_blank" class="project-link-btn">
+            <span class="link-icon">${link.icon}</span>
+            <span>${link.text}</span>
+        </a>`
+    ).join('');
+    
+    // Boost tips остаются статичными или тоже можно из Firebase
+}
+
 // Navigation functionality
 function showSection(sectionId) {
     console.log("showSection called with:", sectionId);
@@ -188,48 +228,9 @@ if (backBtn) {
     document.getElementById('mission-modal-logo').textContent = project.logo;
     document.getElementById('mission-modal-name').textContent = project.name;
     document.getElementById('mission-modal-description').textContent = project.description;
-    
-    // Populate daily tasks
-    const dailyTasksContainer = document.getElementById('mission-daily-tasks');
-    const dailyTasks = [
-        'Launch node or app',
-        'Share internet through connection',
-        'Check personal dashboard for activity',
-        'Open project Telegram bot'
-    ];
-    
-    dailyTasksContainer.innerHTML = dailyTasks.map(task => 
-        `<div class="daily-task">✅ ${task}</div>`
-    ).join('');
-    
-    // Populate updates
-    const updatesContainer = document.getElementById('mission-updates');
-    const updates = [
-        { date: '04.08', text: 'Increased snapshot participation chances' },
-        { date: '03.08', text: 'Added Telegram quest' },
-        { date: '01.08', text: 'First drops announced for September' }
-    ];
-    
-    updatesContainer.innerHTML = updates.map(update => 
-        `<div class="update-item">[${update.date}] ${update.text}</div>`
-    ).join('');
-    
-    // Populate links
-    const linksContainer = document.getElementById('mission-links');
-    const links = [
-        { icon: '🌐', text: 'Website', url: project.website },
-        { icon: '📱', text: 'App/Node', url: project.website },
-        { icon: '💬', text: 'Discord', url: '#' },
-        { icon: '🐦', text: 'Twitter', url: '#' },
-        { icon: '📄', text: 'Docs', url: '#' }
-    ];
-    
-    linksContainer.innerHTML = links.map(link => 
-        `<a href="${link.url}" target="_blank" class="project-link-btn">
-            <span class="link-icon">${link.icon}</span>
-            <span>${link.text}</span>
-        </a>`
-    ).join('');
+
+    // Load mission details from Firebase
+loadMissionDetailsFromFirestore(projectId, project);
     
     modal.classList.add('active');
     console.log("Modal opened, classes:", modal.className);
