@@ -339,6 +339,8 @@ button.nav-link.active {
 }
 
 .project-card {
+    display: flex;
+    flex-direction: column;
     background: rgba(255, 255, 255, 0.05);
     border: 2px solid rgba(255, 255, 255, 0.1);
     border-radius: 16px;
@@ -424,6 +426,7 @@ button.nav-link.active {
 }
 
 .project-actions {
+    margin-top: auto; /* Кнопка всегда внизу */
     display: flex;
     gap: 1rem;
 }
