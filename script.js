@@ -73,8 +73,14 @@ function populateMissionDetailsModal(project, missionData) {
             <span>${link.text}</span>
         </a>`
     ).join('');
-    
-    // Boost tips остаются статичными или тоже можно из Firebase
+}
+
+// Boost tips
+const boostTipsContainer = document.getElementById('mission-boost-tips');
+if (boostTipsContainer && missionData.boostTips) {
+    boostTipsContainer.innerHTML = missionData.boostTips.map(tip => 
+        `<li>🎯 ${tip}</li>`
+    ).join('');
 }
 
 // Navigation functionality
