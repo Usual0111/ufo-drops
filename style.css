@@ -1242,3 +1242,29 @@ button.nav-link.active {
         justify-content: center;
     }
 }
+
+.back-btn {
+    background: none;
+    border: none;
+    color: #00ff9f;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    position: absolute;
+    left: 20px;
+    top: 20px;
+}
+
+.back-btn:hover {
+    background: rgba(0, 255, 159, 0.1);
+    transform: scale(1.1);
+}
+
+.modal-header {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
