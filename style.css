@@ -785,6 +785,8 @@ button.nav-link.active {
     font-size: 2rem;
     cursor: pointer;
     transition: color 0.3s ease;
+    position: static;
+    order: 3;
 }
 
 .close-btn:hover {
@@ -1265,6 +1267,12 @@ button.nav-link.active {
 .modal-header {
     position: relative;
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: space-between;
+}
+
+.modal-header h3 {
+    flex: 1;
+    text-align: center;
+    margin: 0;
 }
