@@ -169,6 +169,14 @@ function openMissionDetailsModal(projectId) {
     console.log("openMissionDetailsModal called with:", projectId);
     const project = projects.find(p => p.id === projectId);
     console.log("Found project:", project);
+    // Set back button handler
+const backBtn = document.getElementById('back-to-project');
+if (backBtn) {
+    backBtn.onclick = () => {
+        closeMissionDetailsModal();
+        openProjectModal(projectId);
+    };
+}
     
     if (!project) return;
     
