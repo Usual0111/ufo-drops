@@ -38,6 +38,8 @@ async function loadProjectsFromFirestore() {
 }
 
 async function loadMissionDetailsFromFirestore(projectId, project) {
+    console.log("Exact projectId:", JSON.stringify(projectId));
+console.log("ProjectId length:", projectId.length);
     try {
         const doc = await db.collection('missionDetails').doc(projectId).get();
         if (doc.exists) {
