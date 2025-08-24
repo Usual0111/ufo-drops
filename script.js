@@ -111,12 +111,6 @@ function renderProjects(filter = 'all') {
         filteredProjects = filteredProjects.filter(project => project.category === filter);
     }
     
-    let filteredProjects = projects;
-    
-    if (filter !== 'all') {
-        filteredProjects = projects.filter(project => project.category === filter);
-    }
-    
     projectsGrid.innerHTML = '';
     
     if (filteredProjects.length === 0) {
