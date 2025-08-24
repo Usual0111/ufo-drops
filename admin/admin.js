@@ -306,6 +306,7 @@ async saveMissionDetails(e, projectId) {
                 logo: '🌐',
                 category: 'depin',
                 status: 'open',
+                hidden: false,  // <- добавь эту строку
                 tags: ['DePIN', 'Free', 'Mobile', 'No KYC'],
                 description: 'Decentralized infrastructure network. Earn tokens by sharing your internet connection.',
                 potentialReward: '$50-100',
@@ -324,6 +325,7 @@ async saveMissionDetails(e, projectId) {
                 logo: '💰',
                 category: 'depin',
                 status: 'open',
+                hidden: false,  // <- добавь эту строку
                 tags: ['DePIN', 'Passive', 'Chrome Extension'],
                 description: 'Monetize your unused internet bandwidth with NodePay extension.',
                 potentialReward: '$30-80',
@@ -342,6 +344,7 @@ async saveMissionDetails(e, projectId) {
                 logo: '👥',
                 category: 'social',
                 status: 'upcoming',
+                hidden: false,  // <- добавь эту строку
                 tags: ['SocialFi', 'Mobile', 'Invite Only'],
                 description: 'Social platform where you can buy and sell shares of people.',
                 potentialReward: '$100-500',
@@ -481,6 +484,9 @@ row.innerHTML = `
     <td>${this.escapeHtml(project.potentialReward || 'TBA')}</td>
     <td>
         <div class="table-actions">
+            <button class="action-btn hide-btn" onclick="adminManager.toggleProjectVisibility('${project.id}')" title="${project.hidden ? 'Show Project' : 'Hide Project'}">
+        ${project.hidden ? '👁️' : '🚫'}
+    </button>
             <button class="action-btn edit-btn" onclick="adminManager.editProject('${project.id}')" title="Edit">
                 ✏️
             </button>
@@ -661,6 +667,22 @@ this.showConfirmModal(
         document.getElementById('project-end-date').value = project.endDate || '';
         document.getElementById('project-steps').value = Array.isArray(project.steps) ? project.steps.join('\n') : '';
     }
+
+    async toggleProjectVisibility(projectId) {
+    const project = this.projects.find(p => p.id == projectId);
+    if (!project) return;
+    
+    project.hidden = !project.hidden;
+    
+    try {
+        await db.collection('projects').doc(projectId).update({ hidden: project.hidden });
+        this.applyFilters();
+        this.showNotification(`Project ${project.hidden ? 'hidden' : 'shown'} successfully!`, 'success');
+    } catch (error) {
+        console.error("Error updating project visibility:", error);
+        this.showNotification('Failed to update project visibility!', 'error');
+    }
+}
     
     async handleFormSubmit(e) {
         e.preventDefault();
