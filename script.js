@@ -30,6 +30,7 @@ async function loadProjectsFromFirestore() {
             projects.push({ id: doc.id, ...projectData });
         });
         console.log("Projects loaded from Firestore:", projects);
+        projects.reverse(); // Показать новые проекты первыми
         renderProjects();
     } catch (error) {
         console.error("Error loading projects from Firestore:", error);
