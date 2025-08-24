@@ -105,6 +105,12 @@ function showSection(sectionId) {
 
 // Project functions
 function renderProjects(filter = 'all') {
+ let filteredProjects = projects.filter(project => !project.hidden); // Скрываем hidden проекты
+    
+    if (filter !== 'all') {
+        filteredProjects = filteredProjects.filter(project => project.category === filter);
+    }
+    
     let filteredProjects = projects;
     
     if (filter !== 'all') {
