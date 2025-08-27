@@ -367,6 +367,7 @@ button.nav-link.active {
 
 .project-header .project-status {
     margin-left: 1rem;
+    flex-shrink: 0;
 }
 
 .project-logo {
@@ -387,7 +388,10 @@ button.nav-link.active {
 
 .project-status {
     white-space: nowrap;
-    font-size: 0.875rem;
+    padding: 0.25rem 0.75rem;
+border-radius: 12px;
+font-size: 0.75rem;
+font-weight: 600;
 }
 
 .project-status.open {
@@ -800,7 +804,7 @@ button.nav-link.active {
 }
 
 .project-info {
-    flex: 1;
+    flex: 0;
     min-width: 0;
 }
 
