@@ -1094,7 +1094,8 @@ font-weight: 600;
 }
 
 .mission-overview {
-    display: block;
+    display: flex;
+    align-items: flex-start;
     gap: 3rem;
     align-items: center;
     margin-bottom: 2rem;
@@ -1103,20 +1104,21 @@ font-weight: 600;
 }
 
 .mission-overview .project-logo {
-    font-size: 4rem;
-    width: 80px;
-    height: 80px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    flex-shrink: 0;
-    margin-right: 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+   font-size: 4rem;
+   width: 80px;
+   height: 80px;
+   background: rgba(255, 255, 255, 0.1);
+   border-radius: 16px;
+   flex-shrink: 0;
+   margin-right: 3rem;
+   margin-bottom: 2rem;
+   display: flex;
+   align-items: center;
+   justify-content: center;
 }
 
 .mission-overview .project-details {
-    margin-top: 0rem;
+    margin-top: 0.5rem;
 }
 
 .mission-overview .project-details h4 {
