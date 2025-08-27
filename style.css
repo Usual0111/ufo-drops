@@ -359,9 +359,14 @@ button.nav-link.active {
 
 .project-header {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
+    justify-content: space-between;
     gap: 0.75rem;
     margin-bottom: 1rem;
+}
+
+.project-header .project-status {
+    margin-left: auto;
 }
 
 .project-logo {
@@ -381,9 +386,6 @@ button.nav-link.active {
 }
 
 .project-status {
-    position: absolute;
-    top: 0.75rem;
-    right: 0.75rem;
     white-space: nowrap;
     font-size: 0.875rem;
 }
