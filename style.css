@@ -1113,6 +1113,10 @@ font-weight: 600;
     flex-shrink: 0;
 }
 
+.mission-overview .project-details {
+    margin-top: 0.5rem;
+}
+
 .mission-overview .project-details h4 {
     font-size: 1.5rem;
     font-weight: 700;
