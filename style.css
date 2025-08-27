@@ -1307,3 +1307,9 @@ font-weight: 600;
     text-align: center;
     margin: 0;
 }
+
+#mission-details-modal .project-logo {
+    background: red !important;
+    margin-right: 50px !important;
+    border: 5px solid yellow !important;
+}
