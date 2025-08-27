@@ -382,6 +382,7 @@ button.nav-link.active {
 }
 
 .project-info h3 {
+    white-space: normal;
     margin: 0 0 0.5rem 0;
     word-wrap: break-word;
 }
@@ -804,7 +805,7 @@ font-weight: 600;
 }
 
 .project-info {
-    flex: 0;
+    flex: 1;
     min-width: 0;
 }
 
