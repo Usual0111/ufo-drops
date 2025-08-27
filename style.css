@@ -1103,6 +1103,8 @@ font-weight: 600;
 }
 
 .mission-overview .project-logo {
+    top: -10px;
+    position: relative;
     align-self: flex-start;
     margin-top: -0.5rem;
     font-size: 4rem;
