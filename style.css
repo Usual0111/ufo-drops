@@ -1096,7 +1096,7 @@ font-weight: 600;
 .mission-overview {
     display: flex;
     align-items: flex-start;
-    gap: 1rem;
+    gap: 2rem;
     margin-bottom: 2rem;
     padding-bottom: 1.5rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
