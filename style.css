@@ -1094,7 +1094,7 @@ font-weight: 600;
 }
 
 .mission-overview {
-    display: block;
+    display: flex;
     gap: 0;
     align-items: flex-start;
     margin-bottom: 2rem;
