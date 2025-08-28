@@ -528,3 +528,19 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+
+/* Project Modal Layout Fix */
+.project-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.project-details {
+    flex: 1;
+}
+
+.project-details h3 {
+    margin-bottom: 0.5rem;
+}
