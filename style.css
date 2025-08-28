@@ -1310,8 +1310,3 @@ font-weight: 600;
     margin: 0;
 }
 
-#mission-details-modal .project-logo {
-    background: red !important;
-    margin-right: 50px !important;
-    border: 5px solid yellow !important;
-}
